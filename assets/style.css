@@ -258,3 +258,24 @@ table.glossary-table td.dayn { white-space: nowrap; font-weight: 800; color: var
 .urlmaker .copybtn:disabled { opacity: 0.4; cursor: not-allowed; }
 .urlmaker .openbtn { background: var(--blue-soft); color: #2f6bd6; }
 .urlmaker .um-note { font-size: 0.8rem; color: var(--muted); margin-top: 8px; }
+
+/* 강사 소개 */
+.instructor{display:flex;gap:20px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 22px;}
+.instructor .ibody{flex:1;min-width:0;}
+.instructor .iname{font-size:1.25rem;font-weight:800;}
+.instructor .irole{color:var(--muted,#9a8b6a);font-weight:700;font-size:.9rem;margin-top:2px;}
+.instructor .icols{display:flex;gap:26px;flex-wrap:wrap;margin-top:14px;}
+.instructor .icols>div{flex:1;min-width:230px;}
+.instructor .ih{font-weight:800;color:var(--accent);font-size:.85rem;margin-bottom:6px;}
+.instructor .ilist{list-style:none;margin:0;padding:0;}
+.instructor .ilist li{display:flex;gap:10px;font-size:.9rem;line-height:1.55;margin:3px 0;}
+.instructor .iy{color:var(--muted,#9a8b6a);font-weight:700;white-space:nowrap;min-width:76px;font-variant-numeric:tabular-nums;}
+.instructor .ibooks{display:flex;flex-direction:column;gap:14px;flex-shrink:0;}
+.instructor .ibooks figure{margin:0;text-align:center;}
+.instructor .ibooks img{width:118px;border-radius:6px;box-shadow:0 8px 20px rgba(180,140,20,.28);border:1px solid var(--border);transform:rotate(-1.5deg);}
+.instructor .ibooks figure:last-child img{transform:rotate(1.5deg);}
+.instructor .ibooks figcaption{font-size:.72rem;color:var(--muted,#9a8b6a);font-weight:700;margin-top:6px;line-height:1.35;}
+@media (max-width:640px){
+  .instructor{flex-direction:column;}
+  .instructor .ibooks{flex-direction:row;justify-content:center;width:100%;}
+}
