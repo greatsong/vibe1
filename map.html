@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>우리 학교를 전국 지도에! 🗺️</title>
+<style>
+  :root{ --gold:#F4B400; --accent:#E8930C; --bg:#FFFDF7; --card:#FFF6E0; --border:#F0E2BC; --text:#3A2E1A; --muted:#9A8B6A; --shadow:rgba(180,140,20,.2); }
+  *{box-sizing:border-box;}
+  body{margin:0;min-height:100vh;background:linear-gradient(180deg,#FFF7E0,var(--bg));color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    display:flex;align-items:flex-start;justify-content:center;padding:24px 20px;}
+  .wrap{width:100%;max-width:420px;text-align:center;}
+  .emoji{font-size:46px;}
+  h1{font-size:1.45rem;font-weight:800;letter-spacing:-.02em;margin:.4rem 0 .2rem;}
+  .sub{color:var(--muted);font-size:.93rem;margin-bottom:16px;}
+  label{display:block;text-align:left;font-size:.82rem;font-weight:800;color:var(--muted);margin:12px 2px 5px;}
+  input,select{width:100%;font-size:1.05rem;padding:.8rem .95rem;border:1.5px solid var(--border);
+    border-radius:13px;background:#fff;color:var(--text);}
+  input:focus,select:focus{outline:none;border-color:var(--gold);}
+  #q{text-align:center;}
+  #list{margin-top:8px;text-align:left;}
+  .pick{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;margin:6px 0;
+    padding:.7rem .9rem;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);
+    font-weight:700;cursor:pointer;font-family:inherit;font-size:.97rem;}
+  .pick:active{background:var(--card);}
+  .pick .rg{font-size:.8rem;color:var(--muted);font-weight:600;}
+  .hint,.err{margin-top:12px;color:var(--muted);font-size:.9rem;}
+  .err{color:#C0392B;font-weight:700;}
+  /* 선택 후 폼 */
+  #form{display:none;}
+  .chosen{display:flex;justify-content:space-between;align-items:center;background:var(--card);
+    border:1px solid var(--border);border-radius:13px;padding:.75rem 1rem;margin-bottom:4px;}
+  .chosen b{font-size:1.05rem;} .chosen .rg{font-size:.78rem;color:var(--muted);font-weight:600;}
+  .chosen a{color:var(--accent);font-weight:800;font-size:.82rem;cursor:pointer;white-space:nowrap;}
+  /* 바이브 코딩 경험: 세 칸 중 하나 고르기 */
+  .opts{display:flex;gap:8px;}
+  .opt{flex:1;border:1.5px solid var(--border);border-radius:13px;background:#fff;color:var(--text);
+    font-family:inherit;font-size:.9rem;font-weight:800;padding:.75rem .3rem;cursor:pointer;line-height:1.35;}
+  .opt .ic{display:block;font-size:1.25rem;margin-bottom:3px;}
+  .opt.on{border-color:var(--accent);background:var(--card);color:var(--accent);box-shadow:0 4px 12px var(--shadow);}
+  .go{width:100%;margin-top:18px;border:none;border-radius:14px;padding:.95rem;font-size:1.08rem;
+    font-weight:800;color:#fff;background:var(--accent);cursor:pointer;font-family:inherit;box-shadow:0 6px 18px var(--shadow);}
+  .go:active{transform:scale(.98);}
+  #ok{position:fixed;inset:0;background:rgba(255,250,235,.97);display:none;flex-direction:column;
+    align-items:center;justify-content:flex-start;text-align:center;padding:24px;z-index:10;overflow-y:auto;}
+  #ok.show{display:flex;}
+  #ok .big{font-size:74px;animation:pop .6s ease;}
+  #ok h2{font-size:1.55rem;margin:.3rem 0 0;}
+  #ok .region{color:var(--accent);font-weight:800;}
+  #ok .meta{margin-top:8px;color:var(--muted);font-weight:700;}
+  #ok .look{margin-top:12px;color:var(--muted);}
+  #ok .prep{margin-top:20px;width:100%;max-width:360px;text-align:left;background:var(--card);
+    border:1px solid var(--border);border-radius:16px;padding:16px 18px;box-shadow:0 6px 18px var(--shadow);}
+  #ok .prepTitle{font-size:1rem;font-weight:800;color:var(--text);margin-bottom:12px;line-height:1.4;}
+  #ok .prepStep{display:flex;gap:9px;align-items:flex-start;margin:10px 0;font-size:.92rem;line-height:1.5;color:var(--text);}
+  #ok .prepNo{color:var(--accent);font-weight:900;flex-shrink:0;}
+  #ok .prep a{color:var(--accent);font-weight:800;text-decoration:none;}
+  #ok .prepWhy{color:var(--muted);font-size:.82rem;font-weight:600;}
+  #ok .prepCheer{margin-top:12px;color:var(--muted);font-size:.85rem;font-weight:700;text-align:center;}
+  #ok .hub{margin-top:16px;width:100%;max-width:360px;background:#fff;border:1px solid var(--border);
+    border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 6px 18px var(--shadow);}
+  #ok .hub .t{font-size:.92rem;font-weight:800;}
+  #ok .hub a{display:inline-block;margin-top:8px;color:var(--accent);font-weight:900;text-decoration:none;font-size:1.02rem;}
+  #ok .hub .u{margin-top:4px;color:var(--muted);font-size:.78rem;font-weight:700;}
+  #ok .again{margin:22px 0;border:1px solid var(--border);background:#fff;color:var(--text);
+    border-radius:12px;padding:.7rem 1.3rem;font-weight:700;cursor:pointer;font-family:inherit;}
+  @keyframes pop{0%{transform:scale(0) rotate(-18deg);}60%{transform:scale(1.25) rotate(8deg);}100%{transform:scale(1);}}
+  .conf{position:fixed;top:-30px;font-size:22px;animation:fall 2.4s linear forwards;z-index:11;pointer-events:none;}
+  @keyframes fall{to{transform:translateY(115vh) rotate(360deg);opacity:.5;}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="emoji">🗺️📍</div>
+    <h1>우리 학교를 전국 지도에!</h1>
+    <p class="sub">학교를 찾고 바이브 코딩 경험·경력을 알려주면<br>앞 화면 지도에 <b>뿅!</b> 나타나요</p>
+
+    <!-- 1) 학교 검색 -->
+    <div id="search">
+      <input id="q" placeholder="학교 이름 검색 (예: 서울고)" autocomplete="off" disabled>
+      <div id="list"></div>
+      <div class="hint" id="hint">데이터 불러오는 중…</div>
+    </div>
+
+    <!-- 2) 바이브 코딩 경험·교육경력 입력 -->
+    <div id="form">
+      <div class="chosen">
+        <div style="text-align:left"><b id="chName"></b><br><span class="rg" id="chRegion"></span></div>
+        <a id="reSearch">✎ 다시 검색</a>
+      </div>
+      <label>바이브 코딩, 얼마나 해보셨어요?</label>
+      <div class="opts" id="vibeOpts">
+        <button type="button" class="opt" data-v="처음이에요"><span class="ic">🌱</span>처음이에요</button>
+        <button type="button" class="opt" data-v="조금 써봤어요"><span class="ic">🙂</span>조금 써봤어요</button>
+        <button type="button" class="opt" data-v="자주 씁니다"><span class="ic">🚀</span>자주 씁니다</button>
+      </div>
+      <label>교육경력</label>
+      <select id="career">
+        <option value="">선택</option>
+        <option>1년 미만</option><option>1~5년</option><option>6~10년</option>
+        <option>11~15년</option><option>16~20년</option><option>21~25년</option><option>26년 이상</option>
+      </select>
+      <button class="go" id="submitBtn">지도에 올리기 🚀</button>
+    </div>
+  </div>
+
+  <div id="ok">
+    <div class="big">🎉</div>
+    <h2 id="okName">○○학교</h2>
+    <div style="margin-top:4px"><span class="region" id="okRegion"></span> 위치에 <b>뿅!</b></div>
+    <div class="meta" id="okMeta"></div>
+    <div class="look">앞 화면 지도를 확인해 보세요 👀</div>
+    <div class="prep">
+      <div class="prepTitle">🎉 지도에 올라갔어요! 이제 계정 세 개만 준비해요</div>
+      <div class="prepStep"><span class="prepNo">①</span><div><b>깃허브</b> — <a href="https://github.com" target="_blank" rel="noopener">github.com</a> 로그인<br><span class="prepWhy">오늘 만든 앱을 올려 둘 곳이에요</span></div></div>
+      <div class="prepStep"><span class="prepNo">②</span><div><b>스트림릿 커뮤니티 클라우드</b> — <a href="https://share.streamlit.io" target="_blank" rel="noopener">share.streamlit.io</a><br><span class="prepWhy">깃허브 계정으로 로그인하면 끝. 앱이 실제로 돌아가는 곳이에요</span></div></div>
+      <div class="prepStep"><span class="prepNo">③</span><div><b>AI 서비스</b> — <a href="https://claude.ai" target="_blank" rel="noopener">클로드(claude.ai)</a> 또는 <a href="https://chatgpt.com" target="_blank" rel="noopener">챗지피티(chatgpt.com)</a> 로그인<br><span class="prepWhy">코드를 대신 써 줄 도구예요</span></div></div>
+      <div class="prepCheer">천천히 준비하시면 돼요. 함께 시작해요! 🌱</div>
+    </div>
+    <div class="hub">
+      <div class="t">📘 준비되셨으면 노트북에서 교재를 여세요</div>
+      <a href="index.html">교재 열기 →</a>
+      <div class="u" id="hubUrl">greatsong.github.io/vibe1/</div>
+    </div>
+    <button class="again" id="again">다른 학교 올리기</button>
+  </div>
+
+<script>
+/* 강사 준비: ① 새 구글 스프레드시트 만들기 → ② 확장 프로그램 · Apps Script에 Code.gs 붙여넣기
+   → ③ 배포 · 새 배포 · 웹 앱(액세스: 모든 사용자) → ④ 나온 URL을 여기와 board.html 양쪽에 넣기 */
+const API_URL = "여기에_새_Apps_Script_웹앱_URL을_넣으세요";
+
+let SCHOOLS = [], chosen = null, vibe = '';
+const $ = id => document.getElementById(id);
+const err = t => $('hint').innerHTML = `<span class="err">⚠️ ${t}</span>`;
+
+fetch('schools.json').then(r=>r.json()).then(d=>{
+  SCHOOLS = d.schools;
+  $('q').disabled = false; $('q').focus();
+  const note = (API_URL.indexOf('http')===0) ? '' : ' · (시트 연결 전 · 테스트 모드)';
+  $('hint').textContent = `전국 ${SCHOOLS.length.toLocaleString()}개 학교 중에서 검색해요` + note;
+}).catch(()=>err('학교 데이터를 못 불러왔어요.'));
+
+function search(q){
+  q = q.trim(); if(q.length < 2) return [];
+  const st=[], inc=[];
+  for(const s of SCHOOLS){ const i=s[0].indexOf(q); if(i===0)st.push(s); else if(i>0)inc.push(s); if(st.length>=8)break; }
+  return st.concat(inc).slice(0,8);
+}
+function renderList(){
+  const list = $('list'); list.innerHTML = '';
+  search($('q').value).forEach(s=>{
+    const b = document.createElement('button'); b.className='pick';
+    b.innerHTML = `<span>${s[0]}</span><span class="rg">${s[1]}</span>`;
+    b.onclick = ()=>choose(s);
+    list.appendChild(b);
+  });
+}
+function choose(s){
+  chosen = s;
+  $('chName').textContent = s[0]; $('chRegion').textContent = s[1];
+  $('search').style.display = 'none';
+  $('form').style.display = 'block';
+}
+$('reSearch').onclick = ()=>{ $('form').style.display='none'; $('search').style.display='block'; $('q').focus(); };
+
+// 바이브 코딩 경험: 세 칸 중 하나만 켜진다
+const vibeBtns = Array.prototype.slice.call(document.querySelectorAll('#vibeOpts .opt'));
+vibeBtns.forEach(b=>{
+  b.onclick = ()=>{
+    vibe = b.dataset.v;
+    vibeBtns.forEach(x=>x.classList.toggle('on', x === b));
+  };
+});
+
+$('submitBtn').onclick = async ()=>{
+  if(!chosen) return;
+  const career = $('career').value;
+  const btn = $('submitBtn'), orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '지도에 올리는 중… ⏳';   // 로딩 안내(전송에 1~2초 걸림)
+  const payload = { school:chosen[0], region:chosen[1], lat:chosen[2], lon:chosen[3], vibe, career };
+  if(API_URL.indexOf('http') === 0){
+    try{ await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) }); }catch(e){}
+  }
+  btn.disabled = false; btn.textContent = orig;
+  showOk(chosen[0], chosen[1], vibe, career);
+};
+
+function showOk(name, region, vibe, career){
+  $('okName').textContent = name; $('okRegion').textContent = region;
+  $('okMeta').textContent = [vibe, career].filter(Boolean).join(' · ');
+  $('ok').classList.add('show');
+  const E = ['🎉','✨','🎊','📍','⭐','🥳','🗺️'];
+  for(let i=0;i<24;i++){
+    const c=document.createElement('div'); c.className='conf'; c.textContent=E[i%E.length];
+    c.style.left=Math.random()*100+'vw'; c.style.animationDelay=(Math.random()*.7)+'s';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),2800);
+  }
+}
+
+$('q').addEventListener('input', renderList);
+$('again').onclick = ()=>{
+  $('ok').classList.remove('show'); chosen=null; vibe='';
+  $('form').style.display='none'; $('search').style.display='block';
+  $('q').value=''; $('list').innerHTML='';
+  vibeBtns.forEach(x=>x.classList.remove('on'));
+  $('career').value=''; $('q').focus();
+};
+</script>
+</body>
+</html>

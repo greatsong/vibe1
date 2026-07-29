@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STEP 2 · 키를 다루다 · 정보교사 바이브 코딩 4시간</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+</head>
+<body>
+<div class="topbar"><div class="inner">
+  <a class="brand" href="index.html"><span class="chick">🚀</span> 정보교사 <span class="a">바이브 코딩</span></a>
+  <span class="spacer"></span>
+  <a class="home" href="index.html">← 목차</a>
+  <span class="badge">선생님용</span>
+</div></div>
+
+<div class="wrap">
+<main>
+  <span class="eyebrow">STEP 2 · 90~130분</span>
+  <h1><span class="a">키</span>를 다루다</h1>
+  <div class="under"></div>
+
+  <div class="make-banner">
+    <div class="t">🎯 이 40분에 만드는 것</div>
+    <ul>
+      <li><b>박스오피스 대시보드</b> — 어제 관객수 TOP 10을 표와 막대그래프로</li>
+      <li>저장소도 앱 주소도 <b>STEP 1에서 만든 그대로</b>. 안에 든 앱만 바꿔 끼웁니다</li>
+    </ul>
+  </div>
+
+  <p>STEP 1에서 길은 이미 뚫렸어요. 이번 40분에 새로 배우는 것은 딱 두 가지입니다.</p>
+  <ul>
+    <li><b>키는 코드 밖에 둔다</b> — 발급받은 인증키를 비밀 금고(secrets)에 넣고, 코드는 이름으로 꺼내 씁니다</li>
+    <li><b>고치면 바로 반영된다</b> — 저장소 파일을 바꿔 저장하면 클라우드가 알아서 다시 배포합니다</li>
+  </ul>
+  <p>두 번째가 오늘의 관통 메시지와 직결돼요. 파이프라인을 한 번 뚫어 두면 그 위에 앱을 갈아 끼우는 비용이 거의 0이 됩니다. 이번 시간에 그걸 손으로 확인합니다.</p>
+
+  <h2>1. API, 짧게</h2>
+  <p>선생님들께는 이미 익숙한 개념이니 비유 하나와 응답 모양만 보고 넘어가요.</p>
+  <table class="daymap">
+    <thead><tr><th>민원창구</th><th>API</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>창구 주소</td><td>요청 URL</td><td>어디에 물어볼지 정해진 인터넷 주소</td></tr>
+      <tr><td>제출 서류</td><td>요청(request)</td><td>"무엇을 알려줘"라는 물음</td></tr>
+      <tr><td>돌려받는 서류</td><td>응답(response)</td><td>정해진 양식(보통 JSON)으로 오는 답</td></tr>
+      <tr><td>신분증</td><td>API 키</td><td>"나 이 서비스 쓰는 사람"임을 증명하는 열쇠</td></tr>
+    </tbody>
+  </table>
+
+  <p>오늘 두드릴 창구는 <b>KOBIS(영화진흥위원회) 일별 박스오피스</b>입니다. 응답은 이런 모양으로 와요.</p>
+  <div class="codewrap code"><span class="label">KOBIS 응답 (일부만 발췌)</span><pre>{
+  "boxOfficeResult": {
+    "boxofficeType": "일별 박스오피스",
+    "showRange": "20260728~20260728",
+    "dailyBoxOfficeList": [
+      {
+        "rank": "1",
+        "movieNm": "영화 제목",
+        "openDt": "2026-07-15",
+        "audiCnt": "100148",
+        "audiAcc": "3619226",
+        "scrnCnt": "2108"
+      },
+      { "rank": "2", "movieNm": "다음 영화" }
+    ]
+  }
+}</pre></div>
+  <ul>
+    <li>겉상자 <code>boxOfficeResult</code> 안에 목록 <code>dailyBoxOfficeList</code>, 그 안에 <b>영화 한 편이 상자 하나</b></li>
+    <li><code>rank</code> 순위 · <code>movieNm</code> 영화명 · <code>openDt</code> 개봉일 · <code>audiCnt</code> 그날 관객수 · <code>audiAcc</code> 누적 관객수 · <code>scrnCnt</code> 스크린수</li>
+  </ul>
+  <div class="callout warn">
+    <div class="h">👀 눈여겨볼 것 — 숫자가 따옴표에 싸여 있다</div>
+    <ul>
+      <li><code>"audiCnt": "100148"</code> — 관객수가 숫자가 아니라 <b>따옴표 친 글자</b>로 옵니다</li>
+      <li>글자인 채로는 정렬도 그래프도 엉망이 돼요. <b>숫자로 바꾸는 한 단계</b>가 반드시 필요합니다</li>
+      <li>공공 API에서 흔한 모양이라, 프롬프트에 미리 적어 두면 AI가 그 변환을 넣어 줍니다</li>
+    </ul>
+  </div>
+
+  <h2>2. KOBIS 키 발급</h2>
+  <p>가입도 발급도 무료이고, 신청하면 바로 나와요. 심사 대기가 없습니다.</p>
+  <ol class="steps">
+    <li><span class="st">가입</span><br>영화진흥위원회 오픈API <a href="https://www.kobis.or.kr/kobisopenapi/" target="_blank" rel="noopener"><code>kobis.or.kr/kobisopenapi</code></a> 접속 → 회원가입 (이메일 인증)</li>
+    <li><span class="st">키 발급</span><br>로그인 → 상단 <b>키 발급/관리</b> → 발급 신청 → 화면에 뜬 키 <b>복사</b></li>
+    <li><span class="st">문서는 열어만 두기</span><br>상단 <b>OPEN API → 제공서비스 → 일별 박스오피스</b>. 지금 읽지 않아도 돼요. 5절에서 통째로 씁니다</li>
+  </ol>
+  <div class="callout tip">
+    <div class="h">💡 발급이 지연되면 강사 예비 키로</div>
+    <ul>
+      <li>메일 인증이 안 오거나 가입에서 막히면 손 들어 주세요. <b>강사 예비 키</b>를 드립니다</li>
+      <li>키 발급은 언제든 혼자 다시 할 수 있어요. 여기서 진도가 끊기는 쪽이 훨씬 손해입니다</li>
+      <li>예비 키는 연수용 공용이라 호출이 몰리면 느려질 수 있어요. 나중에 내 키로 바꿔 끼우면 됩니다</li>
+    </ul>
+  </div>
+  <div class="callout warn">
+    <div class="h">⚠️ 화면 구성은 조금씩 바뀔 수 있어요</div>
+    <ul>
+      <li>메뉴 이름이나 버튼 위치가 위 설명과 다르면, 화면을 캡처해서 AI에게 "여기서 API 키를 어디서 받나요"라고 물어보세요</li>
+      <li>찾을 것은 하나예요. <b>인증키(발급키)</b>라는 낱말이 붙은 문자열입니다</li>
+    </ul>
+  </div>
+
+  <h2>3. 앱을 만들기 전에, 주소창으로 한 번</h2>
+  <p>KOBIS는 키를 주소에 붙여 보내는 방식이라 브라우저 주소창만으로 요청이 됩니다. 코드로 넘어가기 전에 <b>키가 살아 있는지</b>부터 확인해요.</p>
+  <div class="codewrap code"><span class="label">주소의 생김새 (직접 고칠 필요 없음 · 아래 상자 사용)</span><pre>https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=발급받은키&amp;targetDt=20260728</pre></div>
+  <div class="urlmaker" id="km-box">
+    <span class="um-label">🔗 주소 만들기 — 발급받은 키를 붙여넣기만 하세요</span>
+    <input type="text" id="km-key" placeholder="여기에 발급받은 키 붙여넣기" autocomplete="off" spellcheck="false">
+    <div class="made" id="km-url">키를 붙여넣으면, 어제 날짜가 채워진 완성 주소가 여기 나타납니다</div>
+    <div class="btns">
+      <button class="copybtn" id="km-copy" disabled>📋 주소 복사</button>
+      <a class="openbtn" id="km-open" target="_blank" rel="noopener" style="display:none">↗ 새 탭에서 열어 보기</a>
+    </div>
+    <div class="um-note">키는 이 화면 안에서만 쓰이고 어디에도 저장·전송되지 않습니다 · 날짜는 한국 시간 기준 어제로 자동 계산 · 아래 금고(Secrets) 예시에도 이 키가 자동으로 채워집니다</div>
+  </div>
+  <ul>
+    <li>화면 가득 글자 덩어리(JSON)가 뜨면 성공이에요. 한 줄로 뭉쳐 보여도 정상입니다</li>
+    <li>덩어리 속에서 <code>movieNm</code>을 눈으로 찾아보세요. 어제 1위 영화가 그 안에 있습니다</li>
+  </ul>
+  <div class="callout warn">
+    <div class="h">⚠️ 키가 틀리면 — 상태코드만 믿지 말 것</div>
+    <ul>
+      <li>KOBIS는 키가 틀려도 상태코드는 <code>200</code>을 줍니다. 대신 응답에 <code>faultInfo</code> 상자가 와요</li>
+      <li><code>{"faultInfo": {"message": "유효하지않은 키값입니다."}}</code>가 보이면 키 복사가 잘못된 겁니다. 앞뒤 공백을 의심하세요</li>
+      <li>수업에서 그대로 쓸 만한 사례예요. <b>번호표(상태코드)와 서류 내용(응답)을 둘 다 확인한다</b></li>
+    </ul>
+  </div>
+
+  <h2>4. 키를 비밀 금고(secrets)에 넣기</h2>
+  <p>여기가 이번 시간의 첫 번째 핵심입니다. 방금 받은 키를 <b>코드에 적지 않고</b> 앱의 금고에 넣어요.</p>
+  <ol class="steps">
+    <li><span class="st">배포된 내 앱 열기</span><br>STEP 1에서 받은 <code>~.streamlit.app</code> 주소로 접속</li>
+    <li><span class="st">관리 화면 열기</span><br>화면 <b>오른쪽 아래 Manage app</b> 클릭 → 로그 창이 열리면 <b>⋮</b>(점 세 개) → <b>Settings</b></li>
+    <li><span class="st">Secrets 탭에 붙여넣기</span><br><b>Secrets</b> 탭 선택 → 아래 한 줄 붙여넣기 → <b>Save</b></li>
+    <li><span class="st">앱이 스스로 다시 뜨는지 확인</span><br>저장하면 앱이 알아서 다시 시작해요. 잠깐 기다렸다가 새로고침</li>
+  </ol>
+  <div class="codewrap code"><span class="label">Settings → Secrets (위 상자에 붙여넣은 키가 자동으로 채워집니다)</span><pre class="secrets-sync">KOBIS_KEY = "발급받은_키_붙여넣기"</pre></div>
+  <div class="callout warn">
+    <div class="h">🔒 키를 코드에 적으면 안 되는 이유</div>
+    <ul>
+      <li>API 키는 내 신분증이에요. 코드에 적어 GitHub 공개 저장소에 올리면 <b>전 세계에 공개</b>됩니다</li>
+      <li>GitHub에 올라온 키를 훑는 봇이 돌아다녀요. 유료 API 키라면 요금이 남의 몫으로 나갑니다</li>
+      <li>커밋 기록은 지워도 남아요. 한 번 올라간 키는 <b>삭제가 아니라 폐기·재발급</b>이 답입니다</li>
+      <li>클라우드 Secrets 화면에 넣으면 저장소에 파일 자체가 생기지 않으니 안전해요</li>
+    </ul>
+  </div>
+  <h3>이름 세 곳이 한 글자도 다르면 안 됩니다</h3>
+  <p>금고의 원리는 단순해요. 키를 코드 밖에 두고, 코드는 <b>이름으로</b> 꺼내 씁니다. 그래서 이름 세 곳이 정확히 같아야 해요.</p>
+  <table class="daymap">
+    <thead><tr><th>어디에서</th><th>어떻게 쓰나</th></tr></thead>
+    <tbody>
+      <tr><td>① 금고 (Settings → Secrets)</td><td><code>KOBIS_KEY = "발급받은 키"</code></td></tr>
+      <tr><td>② 코드</td><td><code>st.secrets["KOBIS_KEY"]</code></td></tr>
+      <tr><td>③ 프롬프트</td><td>"인증키는 <b>비밀 금고(secrets)의 KOBIS_KEY</b>에서 불러와"</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>셋 중 하나라도 <code>kobis_key</code>·<code>KOBIS-KEY</code>처럼 다르면 앱이 금고에서 못 찾아요 (<code>KeyError</code>)</li>
+    <li>③처럼 <b>이름을 콕 집어</b> 말해야 AI도 같은 이름으로 코드를 씁니다. 바이브 코딩에서 정확한 낱말이 중요한 이유예요</li>
+  </ul>
+  <div class="callout tip">
+    <div class="h">💡 금고는 두 곳에 있어요</div>
+    <ul>
+      <li>내 컴퓨터에서 실행할 때는 <code>.streamlit/secrets.toml</code> 파일, 클라우드에서는 앱 <b>Settings → Secrets</b> 화면</li>
+      <li>적는 형식은 같아요. 배포한 앱이 키를 못 찾는다면 클라우드 쪽 금고에 안 넣은 경우가 대부분입니다</li>
+      <li>내 컴퓨터에서 파일을 쓴다면 <code>.gitignore</code>에 <code>.streamlit/secrets.toml</code> 한 줄을 꼭 넣어 주세요</li>
+    </ul>
+  </div>
+
+  <h2>5. 앱 갈아 끼우기</h2>
+  <p>STEP 1 저장소 <code>my-vibe-app</code>의 <code>app.py</code>를 박스오피스 앱으로 <b>통째로 교체</b>합니다. 저장소도 앱 주소도 그대로예요.</p>
+  <div class="callout tip">
+    <div class="h">💡 덮어써도 앞 코드는 남아 있어요</div>
+    <ul>
+      <li>STEP 1의 지도 코드는 GitHub 커밋 기록에 그대로 있어요. 언제든 되돌릴 수 있습니다</li>
+      <li>이 페이지 아래쪽 접힌 블록에도 완성 코드를 넣어 뒀어요. STEP 4에서 다시 꺼내 씁니다</li>
+      <li><code>requirements.txt</code>는 손대지 않아도 돼요. STEP 1에서 이미 <code>requests</code>가 들어 있습니다</li>
+    </ul>
+  </div>
+  <p>오늘의 요령은 <b>API 문서에서 복사한 부분을 프롬프트 끝에 통째로 붙이기</b>예요. 이렇게 하면 AI가 필드 이름을 지어내지 않습니다.</p>
+  <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>어제의 박스오피스를 보여 주는 스트림릿 앱 하나(app.py)를 만들어 줘. 스트림릿 클라우드에 올릴 거야.
+아래에 공식 API 문서에서 복사한 내용을 붙였어.
+
+- 인증키는 비밀 금고(secrets)의 KOBIS_KEY에서 불러와. 코드에는 절대 쓰지 마.
+- 조회 날짜는 고정하지 말고 '어제'를 자동으로 계산해서 써. 오늘 건 아직 집계 전이거든.
+  '어제'는 반드시 한국 시간(Asia/Seoul) 기준으로 계산해. 배포 서버의 시계는 외국 기준일 수 있어.
+- 순위·영화명·개봉일·관객수·누적관객·스크린수를 표로 보여 줘.
+- 1위 영화는 지표 카드 세 장으로 크게, 관객수 상위 5편은 막대그래프로.
+- 숫자가 전부 글자로 오니까 숫자로 바꾼 다음에 정렬과 그래프에 써 줘.
+- 요청이 실패하거나 응답에 faultInfo가 오면 무엇을 확인해야 하는지 한국어로 안내해 줘.
+- 필요한 라이브러리 목록(requirements.txt)도 같이 줘.
+  버전 숫자 없이 이름만, 스트림릿·판다스·넘파이는 기본 설치라 빼고.
+- 초보자용 한국어 주석을 달고 app.py 전체 코드를 한 번에 줘.
+
+──── 아래는 KOBIS 공식 문서에서 복사한 부분 ────
+요청 주소: https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json
+요청변수: key(발급받은 인증키) · targetDt(조회 날짜, yyyymmdd 여덟 자리)
+응답 구조: boxOfficeResult 안의 dailyBoxOfficeList 목록에 영화별로
+  rank(순위) · movieNm(영화명) · openDt(개봉일) · audiCnt(그날 관객수) ·
+  audiAcc(누적 관객수) · scrnCnt(스크린수) · showCnt(상영횟수)
+  ※ 숫자 값이 전부 문자열로 온다.</pre></div>
+  <p>완성된 코드 한 덩어리가 돌아와요. 내 것과 글자까지 같지 않아도 됩니다. 이런 <b>모습</b>이면 성공이에요.</p>
+  <div class="codewrap code"><span class="label">② AI가 준 코드 예시</span><pre>import streamlit as st
+import pandas as pd
+import requests
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+st.set_page_config(page_title="박스오피스 대시보드", layout="wide")
+st.title("🎬 어제의 박스오피스")
+
+# 비밀 금고에서 인증키 꺼내기 (코드에는 키를 적지 않는다)
+KOBIS_KEY = st.secrets["KOBIS_KEY"]
+
+# 한국 시간 기준 어제 날짜를 여덟 자리로 (배포 서버 시계는 외국 기준일 수 있다)
+yesterday = datetime.now(ZoneInfo("Asia/Seoul")) - timedelta(days=1)
+target_dt = yesterday.strftime("%Y%m%d")
+st.caption(f"조회 기준일(어제): {yesterday.strftime('%Y-%m-%d')}")
+
+url = "https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json"
+res = requests.get(url, params={"key": KOBIS_KEY, "targetDt": target_dt}, timeout=10)
+
+if res.status_code != 200:
+    st.error(f"요청이 실패했어요 (상태코드: {res.status_code})")
+    st.stop()
+
+data = res.json()
+
+# KOBIS는 키가 틀려도 상태코드 200을 준다. 대신 faultInfo 상자가 온다.
+if "faultInfo" in data:
+    st.error("인증키가 올바르지 않아요. 금고(Secrets)의 KOBIS_KEY를 확인해 주세요.")
+    st.stop()
+
+box_list = data.get("boxOfficeResult", {}).get("dailyBoxOfficeList", [])
+if not box_list:
+    st.warning("그날 데이터가 없어요. 날짜를 하루 더 앞으로 옮겨 보세요.")
+    st.stop()
+
+df = pd.DataFrame(box_list)
+
+# 글자로 온 숫자들을 진짜 숫자로 바꾸기
+for col in ["rank", "audiCnt", "audiAcc", "scrnCnt", "showCnt"]:
+    df[col] = pd.to_numeric(df[col])
+
+# 1위 영화 지표 카드 세 장
+top = df.sort_values("rank").iloc[0]
+c1, c2, c3 = st.columns(3)
+c1.metric("어제 1위", top["movieNm"])
+c2.metric("어제 관객수", f"{top['audiCnt']:,}명")
+c3.metric("누적 관객", f"{top['audiAcc']:,}명")
+
+# 표를 한국어 열 이름으로 정리
+table = df[["rank", "movieNm", "openDt", "audiCnt", "audiAcc", "scrnCnt"]].copy()
+table.columns = ["순위", "영화명", "개봉일", "관객수", "누적관객", "스크린수"]
+table = table.sort_values("순위").reset_index(drop=True)
+
+st.subheader("📋 박스오피스 TOP 10")
+st.dataframe(table)
+
+st.subheader("📈 관객수 상위 5편")
+top5 = table.sort_values("관객수", ascending=False).head(5)
+st.bar_chart(top5.set_index("영화명")["관객수"])</pre></div>
+  <div class="codewrap code"><span class="label">requirements.txt (STEP 1 그대로 · 고칠 것 없음)</span><pre>plotly
+requests</pre></div>
+  <p>마음에 안 드는 곳은 대화로 고쳐요.</p>
+  <div class="codewrap improve"><span class="label">③ 프롬프트 개선</span><pre>좋아, 여기서 이어서 고쳐 줘.
+- 날짜를 어제로 고정하지 말고, 달력에서 골라 그날의 박스오피스를 볼 수 있게 해 줘.
+  고를 수 있는 가장 늦은 날짜는 어제까지야. 오늘 건 아직 집계 전이니까.
+- 문서를 보니 rankInten이라는 값이 전날 대비 순위 증감이래. 양수면 순위가 오른 것, 음수면 내린 것.
+  표에서 오른 영화는 빨간 위 화살표, 내린 영화는 파란 아래 화살표를 붙여 줘.
+- 누적관객이 100만 명을 넘은 영화는 영화명 옆에 트로피 이모지를 붙여 줘.
+- 고른 날짜에 데이터가 없으면 빈 화면 대신 "그날은 아직 집계 전이에요"라고 알려 줘.</pre></div>
+
+  <h2>6. 저장하면 알아서 다시 배포됩니다</h2>
+  <p>여기가 두 번째 핵심이에요. 이번 시간에 꼭 손으로 확인하고 넘어가면 좋겠습니다.</p>
+  <ol class="steps">
+    <li><span class="st">파일 교체</span><br>GitHub 저장소 <code>my-vibe-app</code> → <code>app.py</code> → 연필 아이콘 → 기존 내용 <b>전체 선택 후 삭제</b> → 새 코드 붙여넣기</li>
+    <li><span class="st">저장(커밋)</span><br>맨 아래 초록 <b>Commit changes</b> 버튼</li>
+    <li><span class="st">앱 주소 새로고침</span><br>내 <code>~.streamlit.app</code> 주소로 가서 새로고침. 빌드에 1~3분 걸려요</li>
+  </ol>
+  <div class="callout check">
+    <div class="h">✔️ 여기까지 성공 확인</div>
+    <ul>
+      <li>카드 세 장에 <b>어제 1위 영화와 관객수</b>가 차고, 아래에 표와 막대그래프가 뜨면 성공이에요</li>
+      <li>같은 주소인데 어제까지는 지도가 있던 자리에 지금은 영화 표가 있습니다. <b>저장소를 새로 만들지 않았어요</b></li>
+      <li><code>KeyError: 'KOBIS_KEY'</code>가 뜨면 4절 이름 표를 다시 보세요</li>
+      <li>화면이 안 바뀌면 <b>Manage app</b> 로그 창에서 빌드가 아직 도는지 확인. 그래도 안 되면 로그 메뉴의 <b>Reboot app</b></li>
+      <li>막히면 화면의 에러 메시지를 통째로 복사해 AI에게 붙여넣으세요</li>
+    </ul>
+  </div>
+  <div class="callout mini">
+    <div class="h">🧮 방금 확인한 것 — 두 번째 앱의 값</div>
+    <ul>
+      <li>첫 배포에는 계정 만들기, 저장소 만들기, 클라우드 연결이 전부 들어갔어요</li>
+      <li>두 번째 앱에 든 것은 <b>파일 하나 교체 + 커밋</b>이 전부입니다. 세 번째도, 네 번째도 같아요</li>
+      <li>그래서 앱을 하나 더 만드는 판단이 가벼워집니다. 수업 하나에 앱 하나씩 붙여도 부담이 없어요</li>
+    </ul>
+  </div>
+
+  <h2>7. 처음 보는 API를 붙이는 순서</h2>
+  <p>오늘 KOBIS로 한 바퀴 돈 순서를 네 줄로 정리해 둡니다. 어떤 API든 이 순서가 그대로 통해요.</p>
+  <ol class="steps">
+    <li><span class="st">문서에서 세 곳 찾기</span><br><b>요청 주소 · 요청변수 · 응답 예시</b>. 문서의 나머지는 대부분 세부 옵션이에요</li>
+    <li><span class="st">키 발급 → 금고에 넣기</span><br>이름 세 곳(금고·코드·프롬프트)을 한 글자도 다르지 않게</li>
+    <li><span class="st">주소창으로 한 번 두드려 보기</span><br>코드로 가기 전에 키가 살아 있는지부터 확인</li>
+    <li><span class="st">문서 세 곳을 프롬프트 끝에 붙여 바이브 코딩</span><br>AI가 필드 이름을 지어내지 않게 만드는 가장 확실한 방법</li>
+  </ol>
+
+  <details class="glossary">
+    <summary>🧯 시간이 부족하거나 프롬프트가 어긋났다면 — 완성 코드 복붙</summary>
+    <div class="gin">
+      <p>아래 코드를 <code>app.py</code>에 통째로 붙여넣고 커밋하면 같은 결과가 나옵니다. 금고에 <code>KOBIS_KEY</code>만 넣어 두면 돼요. 먼저 진도를 맞추고, 프롬프트는 쉬는 시간에 다시 돌려 보셔도 좋습니다.</p>
+      <div class="codewrap code"><span class="label">app.py 전체 (그대로 복사)</span><pre>import streamlit as st
+import pandas as pd
+import requests
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+st.set_page_config(page_title="박스오피스 대시보드", layout="wide")
+st.title("🎬 어제의 박스오피스")
+
+KOBIS_KEY = st.secrets["KOBIS_KEY"]
+
+yesterday = datetime.now(ZoneInfo("Asia/Seoul")) - timedelta(days=1)
+target_dt = yesterday.strftime("%Y%m%d")
+st.caption(f"조회 기준일(어제): {yesterday.strftime('%Y-%m-%d')}")
+
+url = "https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json"
+res = requests.get(url, params={"key": KOBIS_KEY, "targetDt": target_dt}, timeout=10)
+
+if res.status_code != 200:
+    st.error(f"요청이 실패했어요 (상태코드: {res.status_code})")
+    st.stop()
+
+data = res.json()
+
+if "faultInfo" in data:
+    st.error("인증키가 올바르지 않아요. 금고(Secrets)의 KOBIS_KEY를 확인해 주세요.")
+    st.stop()
+
+box_list = data.get("boxOfficeResult", {}).get("dailyBoxOfficeList", [])
+if not box_list:
+    st.warning("그날 데이터가 없어요. 날짜를 하루 더 앞으로 옮겨 보세요.")
+    st.stop()
+
+df = pd.DataFrame(box_list)
+
+for col in ["rank", "audiCnt", "audiAcc", "scrnCnt", "showCnt"]:
+    df[col] = pd.to_numeric(df[col])
+
+top = df.sort_values("rank").iloc[0]
+c1, c2, c3 = st.columns(3)
+c1.metric("어제 1위", top["movieNm"])
+c2.metric("어제 관객수", f"{top['audiCnt']:,}명")
+c3.metric("누적 관객", f"{top['audiAcc']:,}명")
+
+table = df[["rank", "movieNm", "openDt", "audiCnt", "audiAcc", "scrnCnt"]].copy()
+table.columns = ["순위", "영화명", "개봉일", "관객수", "누적관객", "스크린수"]
+table = table.sort_values("순위").reset_index(drop=True)
+
+st.subheader("📋 박스오피스 TOP 10")
+st.dataframe(table)
+
+st.subheader("📈 관객수 상위 5편")
+top5 = table.sort_values("관객수", ascending=False).head(5)
+st.bar_chart(top5.set_index("영화명")["관객수"])</pre></div>
+    </div>
+  </details>
+
+  <div class="callout mini">
+    <div class="h">🏫 내 수업에서는</div>
+    <ul>
+      <li><b>키 관리가 그 자체로 수업 소재예요.</b> "코드에 키를 적으면 왜 안 될까"를 실습으로 다루면 정보보호 단원이 살아 있는 이야기가 됩니다. 공개 저장소에 올라간 키가 몇 분 만에 발견된다는 사실이 학생에게 잘 먹혀요</li>
+      <li><b>faultInfo는 오류 처리를 가르칠 재료입니다.</b> 상태코드 200인데 실패한 응답. "성공했다는 신호를 어디까지 믿을 것인가"를 코드로 이야기할 수 있어요</li>
+      <li><b>학생 계정 없이도 됩니다.</b> 선생님 키를 금고에 넣은 앱 하나를 배포해 두면 학생은 주소만 열면 돼요. 학생별 키 발급이라는 가장 큰 장벽이 사라집니다</li>
+    </ul>
+  </div>
+
+  <details class="glossary">
+    <summary>📖 이 페이지의 새 용어</summary>
+    <div class="gin">
+      <table class="glossary-table">
+        <thead><tr><th>용어</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><td class="term">API</td><td>정해진 주소에 정해진 양식으로 물으면 정해진 형식으로 답이 오는 창구</td></tr>
+          <tr><td class="term">API 키(인증키)</td><td>"이 서비스를 쓰는 사람"임을 증명하는 문자열. 신분증에 해당</td></tr>
+          <tr><td class="term">JSON</td><td>라벨과 값의 짝으로 이루어진 데이터 양식. 상자 안에 상자를 넣을 수 있음</td></tr>
+          <tr><td class="term">비밀 금고(secrets)</td><td>키를 코드 밖에 보관하는 자리. 코드는 이름으로 꺼내 씀</td></tr>
+          <tr><td class="term">secrets.toml</td><td>내 컴퓨터에서 쓰는 금고 파일. GitHub에 올리지 않도록 <code>.gitignore</code>에 넣어 둠</td></tr>
+          <tr><td class="term">상태코드</td><td>응답에 함께 오는 번호. 200 성공, 404 주소 오류, 429 요청 과다</td></tr>
+          <tr><td class="term">faultInfo</td><td>KOBIS가 실패를 알리는 상자. 상태코드는 200인데 내용은 오류</td></tr>
+          <tr><td class="term">커밋(commit)</td><td>"이 상태로 저장" 도장. GitHub에 커밋하면 클라우드가 앱을 다시 배포함</td></tr>
+        </tbody>
+      </table>
+      <p class="glossary-more"><a href="glossary.html">📚 전체 용어사전 보기 →</a></p>
+    </div>
+  </details>
+
+  <div class="pager">
+    <a class="prev" href="step1.html"><div class="dir">← 이전</div><div class="tt">STEP 1 · 길 뚫기</div></a>
+    <a class="next" href="step3.html"><div class="dir">다음 →</div><div class="tt">STEP 3 · 뷔페</div></a>
+  </div>
+</main>
+</div>
+
+<footer class="foot">2026 정보교사 1급 정교사 자격연수 · 데이터 바이브 코딩 · 선생님용 교재</footer>
+<script src="assets/copy.js"></script>
+<script>
+(function () {
+  var input = document.getElementById("km-key");
+  if (!input) return;
+  var urlBox = document.getElementById("km-url");
+  var copyBtn = document.getElementById("km-copy");
+  var openA = document.getElementById("km-open");
+  var BASE = "https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
+  function yesterdayKST() {
+    var d = new Date(Date.now() + 9 * 3600 * 1000 - 24 * 3600 * 1000);
+    var m = String(d.getUTCMonth() + 1).padStart(2, "0");
+    var day = String(d.getUTCDate()).padStart(2, "0");
+    return "" + d.getUTCFullYear() + m + day;
+  }
+  var secretsPres = document.querySelectorAll("pre.secrets-sync");
+  secretsPres.forEach(function (pre) { pre.dataset.original = pre.textContent; });
+  function syncSecrets(val) {
+    secretsPres.forEach(function (pre) {
+      var text = pre.dataset.original;
+      if (val) {
+        text = text.replace(/KOBIS_KEY = "[^"]*"/, 'KOBIS_KEY = "' + val + '"');
+      }
+      pre.textContent = text;
+    });
+  }
+  function update() {
+    var key = input.value.trim();
+    syncSecrets(key);
+    if (!key) {
+      urlBox.textContent = "키를 붙여넣으면, 어제 날짜가 채워진 완성 주소가 여기 나타납니다";
+      copyBtn.disabled = true;
+      openA.style.display = "none";
+      return;
+    }
+    var url = BASE + "?key=" + encodeURIComponent(key) + "&targetDt=" + yesterdayKST();
+    urlBox.textContent = url;
+    copyBtn.disabled = false;
+    openA.href = url;
+    openA.style.display = "inline-block";
+  }
+  input.addEventListener("input", update);
+  copyBtn.addEventListener("click", function () {
+    var url = urlBox.textContent;
+    function done() {
+      copyBtn.textContent = "✅ 복사됐어요!";
+      setTimeout(function () { copyBtn.textContent = "📋 주소 복사"; }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done);
+    } else {
+      var ta = document.createElement("textarea");
+      ta.value = url; document.body.appendChild(ta);
+      ta.select(); document.execCommand("copy");
+      document.body.removeChild(ta); done();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전국 정보 선생님 지도 🗺️</title>
+<style>
+  :root{ --gold:#F4B400; --accent:#E8930C; --bg:#FFFDF7; --card:#FFF6E0; --border:#F0E2BC; --text:#3A2E1A; --muted:#9A8B6A; --shadow:rgba(180,140,20,.25);
+    --c-e:#22C55E; --c-m:#3B82F6; --c-h:#F59E0B; }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{background:radial-gradient(1200px 820px at 72% -12%,#FFF7DE,#FFFDF7);color:var(--text);overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    display:flex;flex-direction:column;}
+  #head{padding:15px 28px 6px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  #head h1{font-size:clamp(1.25rem,2.1vw,1.9rem);font-weight:900;letter-spacing:-.03em;margin:0;}
+  #head h1 .a{color:var(--accent);}
+  .stat{display:flex;align-items:baseline;gap:6px;background:#fff;border:1px solid var(--border);
+    border-radius:16px;padding:6px 16px;box-shadow:0 3px 12px var(--shadow);}
+  .stat .n{font-size:clamp(1.4rem,2.5vw,2.1rem);font-weight:900;color:var(--accent);line-height:1;
+    font-variant-numeric:tabular-nums;transition:transform .18s;}
+  .stat .n.bump{transform:scale(1.35);}
+  .stat .lb{font-size:.84rem;font-weight:800;color:var(--muted);}
+  .legend{display:flex;gap:16px;background:#fff;border:1px solid var(--border);border-radius:16px;
+    padding:8px 18px;box-shadow:0 3px 12px var(--shadow);}
+  .legend .it{display:flex;align-items:center;gap:7px;font-size:1rem;font-weight:800;}
+  .legend .sw{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+  .legend .cnt{color:var(--text);font-variant-numeric:tabular-nums;min-width:14px;}
+  #main{flex:1;position:relative;min-height:0;overflow:hidden;}
+  #map{position:absolute;inset:0;width:100%;height:100%;}
+  #pins{position:absolute;inset:0;pointer-events:none;}
+  .pin{position:absolute;left:0;top:0;pointer-events:auto;}
+  .pin .vis{transform:translate(-50%,-50%);}
+  .pin .dot{width:15px;height:15px;border-radius:50%;border:2.5px solid #fff;
+    box-shadow:0 3px 9px rgba(0,0,0,.32);animation:pop .5s cubic-bezier(.2,1.6,.4,1);}
+  .pin .pulse{position:absolute;left:0;top:0;width:15px;height:15px;border-radius:50%;
+    transform:translate(-50%,-50%);animation:pulse 2.6s ease-out infinite;}
+  .pin .ripple{position:absolute;left:0;top:0;width:15px;height:15px;border-radius:50%;border:3px solid currentColor;
+    transform:translate(-50%,-50%);animation:ripple 1.1s ease-out 1;opacity:0;}
+  .pin .lab{position:absolute;left:50%;top:11px;transform:translateX(-50%);font-size:12px;font-weight:800;
+    color:var(--text);white-space:nowrap;background:rgba(255,255,255,.94);border:1px solid var(--border);
+    border-radius:8px;padding:1px 8px;box-shadow:0 2px 6px var(--shadow);animation:pop .5s cubic-bezier(.2,1.6,.4,1);
+    transition:transform .15s, box-shadow .15s, border-color .15s;}
+  .pin:hover{z-index:20;}   /* 호버한 학교를 겹친 것들 위로 */
+  .pin:hover .lab{transform:translateX(-50%) scale(1.14);background:#fff;border-color:var(--accent);box-shadow:0 6px 18px var(--shadow);}
+  .pin:hover .dot{transform:scale(1.25);}
+  @keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.25);}100%{transform:scale(1);}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 currentColor;opacity:.5;}70%,100%{box-shadow:0 0 0 15px transparent;opacity:0;}}
+  @keyframes ripple{0%{opacity:.6;transform:translate(-50%,-50%) scale(.7);}100%{opacity:0;transform:translate(-50%,-50%) scale(6);}}
+  #ticker{position:absolute;left:50%;top:16px;transform:translateX(-50%) translateY(-16px);
+    background:var(--accent);color:#fff;font-weight:900;font-size:clamp(1rem,1.7vw,1.35rem);
+    padding:11px 24px;border-radius:99px;box-shadow:0 10px 30px var(--shadow);opacity:0;transition:.35s;white-space:nowrap;z-index:5;}
+  #ticker.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  #ticker .rg{opacity:.85;font-weight:700;font-size:.8em;}
+  #qr{position:absolute;right:20px;bottom:18px;background:#fff;border:1px solid var(--border);border-radius:18px;
+    padding:13px 13px 9px;text-align:center;box-shadow:0 10px 30px var(--shadow);}
+  #qr img{width:176px;height:176px;display:block;border-radius:8px;}
+  #qr .t{margin-top:7px;font-weight:900;font-size:.95rem;}
+  #qr .u{font-size:.72rem;color:var(--muted);word-break:break-all;max-width:176px;}
+  /* 오신 분들 통계 */
+  #stats{position:absolute;left:18px;bottom:16px;background:rgba(255,255,255,.85);border:1px solid var(--border);
+    border-radius:16px;padding:12px 14px;backdrop-filter:blur(6px);box-shadow:0 6px 20px var(--shadow);width:240px;z-index:4;}
+  #stats .sT{font-size:.72rem;font-weight:800;color:var(--muted);margin:0 0 5px;}
+  #stats .sT.two{margin-top:12px;}
+  .bar2{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:.74rem;}
+  .bar2 .bn{width:78px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar2 .bt{flex:1;height:9px;background:rgba(0,0,0,.07);border-radius:99px;overflow:hidden;}
+  .bar2 .bf{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:99px;transition:width .4s;min-width:3px;}
+  .bar2 .bc{width:16px;text-align:right;font-weight:800;color:var(--accent);}
+  .none2{font-size:.7rem;color:#c3b48f;}
+  #stats{cursor:pointer;} #stats:hover{background:rgba(255,255,255,.95);}
+  .chips3{display:flex;flex-wrap:wrap;gap:4px 6px;}
+  .chip3{font-size:.74rem;font-weight:700;color:var(--text);background:rgba(232,147,12,.10);
+    border:1px solid var(--border);border-radius:99px;padding:2px 9px;}
+  .chip3 b{color:var(--accent);}
+  .sHint{font-size:.64rem;color:#B9A97F;margin-top:8px;text-align:right;font-weight:700;}
+  /* 교재 허브로 가기 */
+  #hubLink{position:absolute;left:18px;top:14px;z-index:6;background:#fff;border:1px solid var(--border);
+    border-radius:14px;padding:10px 16px;font-size:.95rem;font-weight:900;color:var(--text);text-decoration:none;
+    box-shadow:0 4px 14px var(--shadow);}
+  #hubLink:hover{transform:scale(1.04);border-color:var(--accent);color:var(--accent);}
+  #hubLink .u{display:block;font-size:.68rem;font-weight:700;color:var(--muted);margin-top:2px;}
+  #qr{cursor:pointer;}
+  #qrbig{position:absolute;inset:0;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(255,253,247,.98);cursor:pointer;}
+  #qrbig.show{display:flex;}
+  #qrbig .h{font-weight:900;font-size:clamp(1.1rem,2.6vw,2rem);color:var(--text);margin-bottom:16px;}
+  #qrbig img{width:min(66vmin,620px);height:min(66vmin,620px);border-radius:18px;box-shadow:0 20px 60px var(--shadow);}
+  #qrbig .u{margin-top:16px;font-weight:900;font-size:clamp(1.1rem,2.4vw,1.8rem);color:var(--accent);}
+  #qrbig .x{margin-top:14px;color:var(--muted);font-size:.9rem;}
+  #empty{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);text-align:center;color:var(--muted);
+    font-weight:800;font-size:1.1rem;transition:.4s;}
+</style>
+</head>
+<body>
+  <div id="head">
+    <h1>🤝 지금 이 순간! 어떤 정보 선생님들과 <span class="a">함께하고 있을까요?</span> 🗺️✨</h1>
+    <div class="stat"><span class="n" id="nSchool">0</span><span class="lb">개 학교 접속!</span></div>
+    <div class="legend">
+      <div class="it"><span class="sw" style="background:var(--c-e)"></span>초 <span class="cnt" id="cE">0</span></div>
+      <div class="it"><span class="sw" style="background:var(--c-m)"></span>중 <span class="cnt" id="cM">0</span></div>
+      <div class="it"><span class="sw" style="background:var(--c-h)"></span>고 <span class="cnt" id="cH">0</span></div>
+    </div>
+  </div>
+  <div id="main">
+    <canvas id="map"></canvas>
+    <div id="pins"></div>
+    <div id="empty">📱 오른쪽 QR을 스캔해<br>우리 학교를 지도에 올려주세요!</div>
+    <div id="ticker"></div>
+    <div id="stats">
+      <div class="sT">🎨 바이브 코딩 경험</div><div id="vibeBars"><div class="none2">집계 중…</div></div>
+      <div class="sT two">🎖 교육경력</div><div id="careerBars"><div class="none2">집계 중…</div></div>
+      <div class="sHint" id="sHint"></div>
+    </div>
+    <a id="hubLink" href="index.html">📘 교재 열기<span class="u" id="hubUrl"></span></a>
+    <div id="qr">
+      <img id="qrimg" alt="QR">
+      <div class="t">📱 여기를 스캔! <span style="color:var(--muted);font-weight:700">(클릭=크게)</span></div>
+      <div class="u" id="qrurl"></div>
+    </div>
+    <div id="qrbig">
+      <div class="h">📱 QR을 찍어 우리 학교를 지도에 올려요</div>
+      <img id="qrbigimg" alt="QR 크게">
+      <div class="u" id="qrbigurl"></div>
+      <div class="x">(화면을 누르면 닫혀요)</div>
+    </div>
+  </div>
+
+<script>
+/* ===== 연결 정보 =====
+   강사 준비: ① 새 구글 스프레드시트 만들기 → ② 확장 프로그램 · Apps Script에 Code.gs 붙여넣기
+   → ③ 배포 · 새 배포 · 웹 앱(액세스: 모든 사용자) → ④ 나온 URL을 여기와 map.html 양쪽에 넣기
+   URL을 넣기 전에도 지도는 그려집니다(핀만 안 찍힘). */
+const API_URL   = "여기에_새_Apps_Script_웹앱_URL을_넣으세요";
+const PHONE_URL = "https://greatsong.github.io/vibe1/map.html";
+const HUB_URL   = "greatsong.github.io/vibe1/";
+/* ==================== */
+
+const KIND_COLOR = {'초':'#22C55E','중':'#3B82F6','고':'#F59E0B'};
+const kindColor = k => KIND_COLOR[k] || '#9CA3AF';
+const kindOf = name => name.includes('초등학교')?'초' : name.includes('고등학교')?'고' : name.includes('중학교')?'중' : '기타';
+// 학교급 정확 판별: schools.json의 학교급(초/중/고)을 이름@지역으로 찾는다.
+// 이름 추정만으로는 국제학교·영재학교·고등공민학교 등 14곳이 '기타'로 빠진다.
+const KIND = {};
+const kindReady = fetch('schools.json').then(r=>r.json()).then(d=>{
+  (d.schools||[]).forEach(s=>{
+    const k = s[0]+'@'+s[1];
+    if(k in KIND && KIND[k] !== s[4]) KIND[k] = null;   // 같은 이름·지역에 학교급이 다르면 판단 보류
+    else KIND[k] = s[4];
+  });
+}).catch(()=>{});
+
+const mainEl = document.getElementById('main');
+const cv = document.getElementById('map'), ctx = cv.getContext('2d');
+const pinsEl = document.getElementById('pins');
+
+document.getElementById('qrimg').src =
+  'https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=8&data=' + encodeURIComponent(PHONE_URL);
+document.getElementById('qrbigimg').src =
+  'https://api.qrserver.com/v1/create-qr-code/?size=640x640&margin=10&data=' + encodeURIComponent(PHONE_URL);
+document.getElementById('qrurl').textContent = PHONE_URL.replace(/^https?:\/\//,'');
+document.getElementById('qrbigurl').textContent = PHONE_URL.replace(/^https?:\/\//,'');
+document.getElementById('hubUrl').textContent = HUB_URL;
+document.getElementById('qr').onclick = ()=>document.getElementById('qrbig').classList.add('show');
+document.getElementById('qrbig').onclick = ()=>document.getElementById('qrbig').classList.remove('show');
+
+let DIST = [];   // 시군구 [{n,p:[[ring...]],bbox,count}]
+let NAT = null, VIEW = null;
+const PINS = [], pinByName = {};   // 학교명 → 핀(인원수 갱신용)
+let count=0, cE=0,cM=0,cH=0;
+let VIBE={}, CAREER={}, tallySig='';
+const VIBE_ORDER=['처음이에요','조금 써봤어요','자주 씁니다'];
+const CAREER_ORDER=['1년 미만','1~5년','6~10년','11~15년','16~20년','21~25년','26년 이상'];
+const tq=[]; let tActive=false;   // 도착 알림 큐(동시 도착 안 묻히게)
+
+function buildProj(g){
+  const mw=mainEl.clientWidth, mh=mainEl.clientHeight;
+  const kx=Math.cos((g.laMin+g.laMax)/2*Math.PI/180);
+  const gw=(g.loMax-g.loMin)*kx, gh=(g.laMax-g.laMin);
+  const scale=Math.min(mw/gw, mh/gh)*0.92;
+  const cx=(g.loMin+g.loMax)/2*kx, cy=(g.laMin+g.laMax)/2;
+  return { g, proj:(la,lo)=>[ mw/2+(lo*kx-cx)*scale, mh/2-(la-cy)*scale ] };
+}
+function drawMap(){
+  const dpr=Math.min(window.devicePixelRatio||1, 2.5);
+  const mw=mainEl.clientWidth, mh=mainEl.clientHeight;
+  cv.width=mw*dpr; cv.height=mh*dpr; cv.style.width=mw+'px'; cv.style.height=mh+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,mw,mh);
+  ctx.lineJoin='round'; ctx.lineWidth=0.9; ctx.strokeStyle='rgba(150,120,60,.45)';
+  const P=VIEW.proj;
+  for(const d of DIST){
+    const path=new Path2D();
+    for(const poly of d.p) for(const ring of poly){
+      for(let i=0;i<ring.length;i++){ const [x,y]=P(ring[i][1],ring[i][0]); i?path.lineTo(x,y):path.moveTo(x,y); }
+      path.closePath();
+    }
+    ctx.fillStyle = d.count>0 ? `rgba(232,147,12,${0.20+Math.min(d.count,6)*0.11})` : 'rgba(244,200,120,.10)';
+    ctx.fill(path,'evenodd'); ctx.stroke(path);
+  }
+}
+// 가까운 학교끼리 마커가 겹치지 않도록: 화면좌표가 근접한 핀들을 작은 원형으로 분산(offset)
+function computeOffsets(pts){
+  const clusters=[]; const TH=22;   // 22px 안이면 겹친 것으로 보고 한 무리로
+  pts.forEach((pt,i)=>{
+    let c=null;
+    for(const cl of clusters){ const dx=pt[0]-cl.cx, dy=pt[1]-cl.cy; if(dx*dx+dy*dy < TH*TH){ c=cl; break; } }
+    if(!c){ c={members:[],cx:pt[0],cy:pt[1]}; clusters.push(c); }
+    c.members.push(i);
+  });
+  const off=pts.map(()=>[0,0]);
+  for(const cl of clusters){
+    const m=cl.members; if(m.length<2) continue;
+    const r=12+m.length*2.2;
+    m.forEach((idx,k)=>{ const a=2*Math.PI*k/m.length - Math.PI/2; off[idx]=[Math.cos(a)*r, Math.sin(a)*r]; });
+  }
+  return off;
+}
+function repositionPins(){
+  const P=VIEW.proj;
+  const pts=PINS.map(p=>P(p.la,p.lo));
+  const off=computeOffsets(pts);
+  PINS.forEach((p,i)=>{ p.el.style.transform=`translate(${pts[i][0]+off[i][0]}px,${pts[i][1]+off[i][1]}px)`; });
+}
+function render(){ drawMap(); repositionPins(); }
+
+function inRing(lo,la,ring){
+  let inside=false;
+  for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+    const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+    if(((yi>la)!==(yj>la)) && (lo < (xj-xi)*(la-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+function districtOf(la,lo){
+  for(const d of DIST){
+    const b=d.bbox; if(lo<b[0]||lo>b[2]||la<b[1]||la>b[3]) continue;
+    for(const poly of d.p){ let c=false; for(const ring of poly) if(inRing(lo,la,ring)) c=!c; if(c) return d; }
+  }
+  return null;
+}
+
+function pinsGeo(){
+  let a0=90,a1=-90,o0=180,o1=-180;
+  for(const p of PINS){ a0=Math.min(a0,p.la);a1=Math.max(a1,p.la);o0=Math.min(o0,p.lo);o1=Math.max(o1,p.lo); }
+  const cLa=(a0+a1)/2, cLo=(o0+o1)/2;
+  const sLa=Math.max(a1-a0, 0.18)*1.5, sLo=Math.max(o1-o0, 0.18)*1.5;
+  let g={laMin:cLa-sLa/2,laMax:cLa+sLa/2,loMin:cLo-sLo/2,loMax:cLo+sLo/2};
+  g.laMin=Math.max(g.laMin,NAT.laMin); g.laMax=Math.min(g.laMax,NAT.laMax);
+  g.loMin=Math.max(g.loMin,NAT.loMin); g.loMax=Math.min(g.loMax,NAT.loMax);
+  return g;
+}
+function fitChanged(g){
+  if(!VIEW) return true;
+  const v=VIEW.g, vLa=v.laMax-v.laMin, vLo=v.loMax-v.loMin;
+  if(Math.abs((g.laMax-g.laMin)-vLa)/vLa>0.15) return true;
+  if(Math.abs((g.loMax-g.loMin)-vLo)/vLo>0.15) return true;
+  if(Math.abs((g.loMin+g.loMax)/2-(v.loMin+v.loMax)/2)>vLo*0.1) return true;
+  if(Math.abs((g.laMin+g.laMax)/2-(v.laMin+v.laMax)/2)>vLa*0.1) return true;
+  return false;
+}
+window.addEventListener('resize', ()=>{ if(VIEW){ VIEW=buildProj(VIEW.g); render(); } });
+
+function bump(el,val){ if(el.textContent===String(val))return; el.textContent=val; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); }
+// 도착 알림: 한 번에 여러 명 와도 순차로 다 보여줌(많으면 묶어서)
+function enqueueTicker(items){ tq.push(...items); pumpTicker(); }
+function pumpTicker(){
+  if(tActive || !tq.length) return;
+  tActive=true;
+  const t=document.getElementById('ticker');
+  let html;
+  if(tq.length>4){ const n=tq.length, f=tq[0].school; tq.length=0; html=`🎉 ${f} 외 ${n-1}곳 동시 합류! 🎉`; }
+  else { const r=tq.shift(); const extra=[r.region,r.vibe,r.career].filter(Boolean).join(' · ');
+    html=`🎉 ${r.school} <span class="rg">${extra?'· '+extra:''}</span> 합류!`; }
+  t.innerHTML=html; t.classList.add('show');
+  clearTimeout(pumpTicker._h); pumpTicker._h=setTimeout(()=>t.classList.remove('show'),1500);
+  setTimeout(()=>{ tActive=false; pumpTicker(); }, 1700);
+}
+// 오신 분들 통계(바이브 경험·교육경력) — 기본은 숫자, 클릭하면 막대 그래프
+let statsExpanded=false;
+function drawBars(node,entries){
+  if(!entries.length){ node.innerHTML='<div class="none2">아직 없음</div>'; return; }
+  const m=Math.max(1,...entries.map(e=>e[1]));
+  node.innerHTML=entries.map(([k,v])=>`<div class="bar2"><span class="bn">${k}</span><span class="bt"><span class="bf" style="width:${v/m*100}%"></span></span><span class="bc">${v}</span></div>`).join('');
+}
+function drawChips(node,entries){
+  if(!entries.length){ node.innerHTML='<div class="none2">아직 없음</div>'; return; }
+  node.innerHTML='<div class="chips3">'+entries.map(([k,v])=>`<span class="chip3">${k} <b>${v}</b></span>`).join('')+'</div>';
+}
+function ordered(order,obj){
+  const known=order.filter(k=>obj[k]).map(k=>[k,obj[k]]);
+  const rest=Object.keys(obj).filter(k=>order.indexOf(k)<0 && obj[k]).map(k=>[k,obj[k]]);
+  return known.concat(rest);
+}
+function renderStats(){
+  const f = statsExpanded ? drawBars : drawChips;
+  f(document.getElementById('vibeBars'), ordered(VIBE_ORDER, VIBE));
+  f(document.getElementById('careerBars'), ordered(CAREER_ORDER, CAREER));
+  document.getElementById('sHint').textContent = statsExpanded ? '(클릭: 숫자로 접기)' : '(클릭: 그래프로 보기)';
+}
+document.getElementById('stats').addEventListener('click', ()=>{ statsExpanded=!statsExpanded; renderStats(); });
+
+function labelText(school,count){ return count>1 ? `${school} (${count})` : school; }
+function addPin(school,region,la,lo,kind,count){
+  const color=kindColor(kind);
+  const el=document.createElement('div'); el.className='pin'; el.style.color=color;
+  el.innerHTML=`<div class="vis"><div class="pulse" style="color:${color}"></div><div class="ripple"></div>`+
+    `<div class="dot" style="background:${color}"></div><div class="lab">${labelText(school,count)}</div></div>`;
+  pinsEl.appendChild(el);
+  const p={el,la,lo,school,region,count,labEl:el.querySelector('.lab')}; PINS.push(p);
+  el.title = `${school} · ${region}` + (count>1 ? ` · ${count}명 합류` : '');
+  if(VIEW){ const [x,y]=VIEW.proj(la,lo); el.style.transform=`translate(${x}px,${y}px)`; }
+  return p;
+}
+
+fetch('sigungu.json').then(r=>r.json()).then(d=>{
+  let a0=90,a1=-90,o0=180,o1=-180;
+  DIST = d.sigungu.map(f=>{
+    let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    for(const poly of f.p) for(const ring of poly) for(const [lo,la] of ring){
+      if(lo<x0)x0=lo; if(lo>x1)x1=lo; if(la<y0)y0=la; if(la>y1)y1=la;
+      if(la<a0)a0=la; if(la>a1)a1=la; if(lo<o0)o0=lo; if(lo>o1)o1=lo;
+    }
+    return {n:f.n, p:f.p, bbox:[x0,y0,x1,y1], count:0};
+  });
+  NAT={laMin:a0,laMax:a1,loMin:o0,loMax:o1};
+  VIEW=buildProj(NAT); render();
+  kindReady.then(startPolling);
+}).catch(()=>{
+  const em=document.getElementById('empty');
+  if(em){ em.style.opacity=1; em.textContent='⚠️ 지도 데이터를 불러오지 못했어요. 새로고침해 주세요.'; }
+});
+
+async function poll(){
+  try{
+    const d = await (await fetch(API_URL)).json();
+    const useTally = !!d.tally;
+    const freshItems=[];
+    (d.schools||[]).forEach(r=>{
+      const cnt = +r.count || 1;
+      const existing = pinByName[r.school];
+      if(existing){   // 이미 있는 학교 — 인원수만 갱신
+        if(cnt !== existing.count){
+          existing.count = cnt;
+          existing.labEl.textContent = labelText(r.school, cnt);
+          existing.el.title = `${r.school} · ${r.region}` + (cnt>1 ? ` · ${cnt}명 합류` : '');
+        }
+        return;
+      }
+      count++;
+      const kind = KIND[r.school+'@'+r.region] || kindOf(r.school);
+      pinByName[r.school] = addPin(r.school, r.region, +r.lat, +r.lon, kind, cnt);
+      if(kind==='초')cE++; else if(kind==='중')cM++; else if(kind==='고')cH++;
+      const dist = districtOf(+r.lat, +r.lon); if(dist) dist.count++;   // 어느 구인지 색칠용 카운트
+      if(!useTally){   // 백엔드가 집계를 안 주면 학교 단위로 세어 둔다
+        if(r.vibe)   VIBE[r.vibe]     = (VIBE[r.vibe]||0)+1;
+        if(r.career) CAREER[r.career] = (CAREER[r.career]||0)+1;
+      }
+      freshItems.push(r);
+    });
+    if(useTally){   // 사람 수 기준 집계 — 바뀐 때만 다시 그린다
+      const sig = JSON.stringify(d.tally);
+      if(sig !== tallySig){
+        tallySig = sig;
+        VIBE = d.tally.vibe || {}; CAREER = d.tally.career || {};
+        renderStats();
+      }
+    }
+    if(freshItems.length){
+      document.getElementById('empty').style.opacity=0;
+      bump(document.getElementById('nSchool'), count);
+      document.getElementById('cE').textContent=cE;
+      document.getElementById('cM').textContent=cM;
+      document.getElementById('cH').textContent=cH;
+      const g=pinsGeo(); if(fitChanged(g)) VIEW=buildProj(g);
+      render();                                  // 지도(구 색칠) + 핀 재배치
+      if(!useTally) renderStats();               // 바이브 경험·경력 통계 갱신
+      enqueueTicker(freshItems);                 // 동시 도착도 순차로 다 알림
+    }
+  }catch(e){ /* 다음 폴링에서 재시도 */ }
+}
+function startPolling(){
+  if(API_URL.indexOf('http') !== 0){   // 시트 연결 전 — 지도만 그리고 폴링은 멈춘다
+    const em=document.getElementById('empty');
+    if(em){ em.style.opacity=1;
+      em.innerHTML='🔌 시트 연결 전 · 테스트 모드<br>' +
+        '<span style="font-size:.85rem;font-weight:700">map.html과 board.html의 API_URL에 Apps Script 웹 앱 주소를 넣으면 핀이 찍혀요</span>'; }
+    renderStats();
+    return;
+  }
+  poll(); setInterval(poll, 3500);
+}
+</script>
+</body>
+</html>
