@@ -44,6 +44,7 @@ function doGet(e) {
   const index = {};
   const tally = { vibe: {}, career: {}, confident: {}, unconfident: {} };
   const scores = {};   // 분야별 [합계, 인원]
+  const dist = {};     // 분야별 점수 분포 {1:n, 2:n, ...}
   if (sh.getLastRow() > 1) {
     const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 10).getValues();
     rows.forEach(function (r) {
@@ -55,16 +56,18 @@ function doGet(e) {
       addSplit_(tally.confident, r[7]);
       addSplit_(tally.unconfident, r[8]);
       addScores_(scores, r[9]);
+      addDist_(dist, r[9]);
       if (name in index) { schools[index[name]].count++; return; }
       index[name] = schools.length;
       schools.push({ school: name, region: String(r[2]), lat: r[3], lon: r[4], vibe: vibe, career: career, count: 1 });
     });
   }
-  // 분야별 평균 자신감(1~5, 소수 둘째 자리)
+  // 분야별 평균 자신감(1~5, 소수 둘째 자리)과 점수 분포({1:n,...,5:n})
   tally.skillAvg = {};
   Object.keys(scores).forEach(function (k) {
     tally.skillAvg[k] = Math.round(scores[k][0] / scores[k][1] * 100) / 100;
   });
+  tally.skillDist = dist;
   return out_({ ok: true, schools: schools, tally: tally });
 }
 
@@ -77,6 +80,18 @@ function addScores_(map, v) {
     if (!k || !(n >= 1 && n <= 5)) return;
     if (!map[k]) map[k] = [0, 0];
     map[k][0] += n; map[k][1] += 1;
+  });
+}
+
+// '분야=점수' 문자열을 분야별 점수 분포로 누적
+function addDist_(map, v) {
+  String(v || '').split(',').forEach(function (s) {
+    const parts = s.split('=');
+    if (parts.length !== 2) return;
+    const k = parts[0].trim(), n = Number(parts[1]);
+    if (!k || !(n >= 1 && n <= 5)) return;
+    if (!map[k]) map[k] = {};
+    map[k][n] = (map[k][n] || 0) + 1;
   });
 }
 
