@@ -11,9 +11,13 @@
     --ink:#F4F4F2;
     --ink-dim:#9A9A98;
     --ink-faint:#5A5A5C;
-    --green:#5BE38B;      /* On AI — 초록불, AI에게 켜 주는 신호 */
+    --amber:#F3B03A;      /* 아톰의 세상 — 따뜻한 골드 */
+    --amber-soft:#F7C97B;
+    --cyan:#5AD6E6;       /* 비트의 세상 — 차가운 시안 */
+    --cyan-soft:#9DE9F2;
+    --green:#5BE38B;      /* On AI — 초록불 */
     --green-soft:#9DF0BA;
-    --red:#FF7A6B;        /* Non AI — 빨간불, AI를 잠시 멈추는 신호 */
+    --red:#FF7A6B;        /* Non AI — 빨간불 */
     --red-soft:#FFA79C;
     --yellow:#F3C34A;     /* 그 사이 — 노란불, 지향점 */
     --yellow-soft:#F8D98A;
@@ -42,8 +46,8 @@
     position:fixed; inset:0;
     background:
       radial-gradient(120% 90% at 50% 30%, rgba(255,255,255,.035), transparent 60%),
-      radial-gradient(100% 120% at 20% 120%, rgba(91,227,139,.05), transparent 55%),
-      radial-gradient(100% 120% at 80% 120%, rgba(255,122,107,.045), transparent 55%),
+      radial-gradient(100% 120% at 20% 120%, rgba(243,176,58,.045), transparent 55%),
+      radial-gradient(100% 120% at 80% 120%, rgba(90,214,230,.05), transparent 55%),
       var(--bg);
   }
 
@@ -110,6 +114,8 @@
     max-width:min(100%, 24em);
     line-height:1.6;
   }
+  .amber{ color:var(--amber); }
+  .cyan{ color:var(--cyan); }
   .green{ color:var(--green); }
   .red{ color:var(--red); }
   .yellow{ color:var(--yellow); }
@@ -131,38 +137,131 @@
     max-width:min(100%, 15em);
   }
 
-  /* ---- 신호등 마크 ---- */
-  .mark{
+  /* ---- 아톰 · 비트 글리프 ---- */
+  .glyph{
+    height:clamp(110px, 24vh, 240px);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:clamp(28px,4.6vh,58px);
+    position:relative;
+  }
+  .atom{
+    width:clamp(90px,14vh,156px); height:clamp(90px,14vh,156px);
+    border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, var(--amber-soft), var(--amber) 55%, #B87510 100%);
+    box-shadow:0 0 4px rgba(243,176,58,.5), 0 0 44px rgba(243,176,58,.32), 0 0 120px rgba(243,176,58,.18);
+    animation:breathe 6s var(--ease) infinite;
+  }
+  @keyframes breathe{
+    0%,100%{ transform:scale(1); }
+    50%{ transform:scale(1.045); }
+  }
+  .bits{
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:clamp(8px,1.5vh,15px);
+  }
+  .bit{
+    width:clamp(14px,2.2vh,24px); height:clamp(14px,2.2vh,24px);
+    border-radius:3px;
+    background:var(--cyan);
+    box-shadow:0 0 10px rgba(90,214,230,.5);
+    opacity:.9;
+  }
+  .slide.active .bits .bit{ animation:pixIn .5s var(--ease) both; }
+  @keyframes pixIn{ from{ opacity:0; transform:scale(.4); } to{ opacity:.9; transform:none; } }
+
+  /* ---- 다리: 아톰과 비트를 잇는 AI ---- */
+  .bridge{
+    width:min(720px,84vw); height:clamp(120px,22vh,200px);
+    position:relative; margin-bottom:clamp(26px,4vh,52px);
+  }
+  .bridge .node-atom{
+    position:absolute; left:4%; top:50%; transform:translateY(-50%);
+    width:clamp(64px,11vh,110px); height:clamp(64px,11vh,110px); border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, var(--amber-soft), var(--amber) 55%, #B87510 100%);
+    box-shadow:0 0 40px rgba(243,176,58,.35),0 0 90px rgba(243,176,58,.16);
+  }
+  .bridge .node-bits{
+    position:absolute; right:4%; top:50%; transform:translateY(-50%);
+    display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(6px,1vh,10px);
+  }
+  .bridge .node-bits i{
+    width:clamp(13px,2vh,22px); height:clamp(13px,2vh,22px); border-radius:3px;
+    background:var(--cyan); box-shadow:0 0 10px rgba(90,214,230,.5); display:block;
+  }
+  .bridge svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
+  .bridge .link{
+    stroke:url(#lg); stroke-width:2.4; fill:none;
+    stroke-dasharray:1; stroke-dashoffset:1;
+    filter:drop-shadow(0 0 6px rgba(255,255,255,.35));
+  }
+  .slide.active .bridge .link{
+    stroke-dasharray:1000; stroke-dashoffset:1000;
+    animation:draw 1.6s var(--ease) .5s forwards;
+  }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  .bridge .ai-tag{
+    position:absolute; left:50%; top:calc(50% - clamp(40px,8vh,64px)); transform:translateX(-50%);
+    font-size:clamp(13px,1.7vw,18px); letter-spacing:.34em; color:var(--ink-dim);
+    text-transform:uppercase; opacity:0;
+  }
+  .slide.active .bridge .ai-tag{ animation:fadeUp .8s var(--ease) 1.4s both; }
+  @keyframes fadeUp{ from{opacity:0; transform:translate(-50%,8px);} to{opacity:1; transform:translate(-50%,0);} }
+
+  /* ---- 신호등 ---- */
+  .signal{
     display:flex; align-items:center; gap:clamp(14px,2.2vw,26px);
     padding:clamp(12px,1.8vh,18px) clamp(20px,2.6vw,32px);
     border-radius:999px;
     border:1px solid rgba(255,255,255,.1);
     background:rgba(255,255,255,.03);
-    margin-bottom:clamp(26px,4.6vh,54px);
   }
-  .mark i{
+  .signal.sm{
+    gap:clamp(8px,1.2vw,14px);
+    padding:clamp(8px,1.2vh,12px) clamp(14px,1.8vw,20px);
+  }
+  .signal i{
     display:block;
     width:clamp(22px,3.8vh,40px); height:clamp(22px,3.8vh,40px);
     border-radius:50%;
   }
-  .mark .l-g{
+  .signal.sm i{ width:clamp(13px,2.2vh,22px); height:clamp(13px,2.2vh,22px); }
+  .signal .l-g{
     background:radial-gradient(circle at 38% 32%, var(--green-soft), var(--green) 60%, #2E9B58 100%);
     box-shadow:0 0 12px rgba(91,227,139,.55), 0 0 40px rgba(91,227,139,.25);
     animation:pulse 5s var(--ease) infinite;
   }
-  .mark .l-y{
+  .signal .l-y{
     background:radial-gradient(circle at 38% 32%, var(--yellow-soft), var(--yellow) 60%, #B98A17 100%);
     box-shadow:0 0 12px rgba(243,195,74,.5), 0 0 40px rgba(243,195,74,.22);
     animation:pulse 5s var(--ease) 1.6s infinite;
   }
-  .mark .l-r{
+  .signal .l-r{
     background:radial-gradient(circle at 38% 32%, var(--red-soft), var(--red) 60%, #C24537 100%);
     box-shadow:0 0 12px rgba(255,122,107,.5), 0 0 40px rgba(255,122,107,.22);
     animation:pulse 5s var(--ease) 3.2s infinite;
   }
   @keyframes pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.12);} }
 
-  /* ---- 역량 칩 (On AI 슬라이드) ---- */
+  /* ---- 엠블럼: 아톰 — 신호등 — 비트 ---- */
+  .emblem{
+    display:flex; align-items:center; gap:clamp(16px,2.6vw,30px);
+    margin-bottom:clamp(26px,4.6vh,54px);
+  }
+  .emblem .e-atom{
+    width:clamp(30px,5vh,52px); height:clamp(30px,5vh,52px);
+    border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, var(--amber-soft), var(--amber) 55%, #B87510 100%);
+    box-shadow:0 0 14px rgba(243,176,58,.5), 0 0 52px rgba(243,176,58,.26);
+    animation:breathe 6s var(--ease) infinite;
+  }
+  .emblem .e-bit{
+    width:clamp(27px,4.6vh,48px); height:clamp(27px,4.6vh,48px);
+    border-radius:8px;
+    background:var(--cyan);
+    box-shadow:0 0 14px rgba(90,214,230,.55), 0 0 48px rgba(90,214,230,.25);
+    animation:breathe 6s var(--ease) 3s infinite;
+  }
+
+  /* ---- 역량 칩 ---- */
   .chip-row{
     display:flex; gap:clamp(8px,1.2vw,16px); flex-wrap:wrap; justify-content:center;
     margin-top:clamp(20px,3.4vh,38px);
@@ -238,6 +337,29 @@
   }
   .track .sep{ color:var(--ink-faint); font-size:clamp(12px,1.4vw,16px); }
 
+  /* ---- 슬라이드 내부 빌드(클릭마다 한 단계씩 공개) ---- */
+  [data-step]{
+    opacity:0; transform:translateY(10px) scale(.95);
+    transition:opacity .45s var(--ease), transform .5s var(--ease),
+               box-shadow .35s var(--ease), border-color .35s var(--ease),
+               background .35s var(--ease), color .35s var(--ease);
+  }
+  [data-step].shown{ opacity:1; transform:none; }
+  .chip[data-step].now{
+    transform:scale(1.12);
+    color:var(--ink); font-weight:700;
+  }
+  .track.t-on .chip.now{
+    border-color:rgba(91,227,139,.9);
+    background:rgba(91,227,139,.16);
+    box-shadow:0 0 28px rgba(91,227,139,.4);
+  }
+  .track.t-non .chip.now{
+    border-color:rgba(255,122,107,.9);
+    background:rgba(255,122,107,.16);
+    box-shadow:0 0 28px rgba(255,122,107,.38);
+  }
+
   /* ---- 학생 반응 리스트 ---- */
   .points{
     display:flex; flex-direction:column; gap:clamp(14px,2.4vh,24px);
@@ -266,7 +388,7 @@
   /* ---- Progress dots ---- */
   .dots{
     position:fixed; left:50%; bottom:clamp(20px,3.6vh,34px); transform:translateX(-50%);
-    display:flex; gap:11px; z-index:20;
+    display:flex; gap:10px; z-index:20;
   }
   .dot{
     width:7px; height:7px; border-radius:50%;
@@ -279,7 +401,7 @@
 
   .topbar{
     position:fixed; top:0; left:0; height:2px; z-index:20;
-    background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));
+    background:linear-gradient(90deg,var(--amber),var(--green),var(--yellow),var(--red),var(--cyan));
     width:0; transition:width .7s var(--ease);
   }
 
@@ -303,12 +425,16 @@
     .hint{ display:none; }
     .kicker{ letter-spacing:.3em; }
     .cards{ grid-template-columns:1fr 1fr; }
+    .dots{ gap:7px; }
   }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; }
     .slide{ transition:opacity .3s ease, visibility .3s; transform:none !important; }
     .slide .rise{ transition:opacity .3s ease; transform:none !important; }
+    .bridge .link{ stroke-dashoffset:0 !important; stroke-dasharray:none !important; }
+    .bridge .ai-tag{ opacity:1 !important; }
+    [data-step]{ transition:opacity .3s ease; transform:none !important; }
   }
 </style>
 </head>
@@ -318,41 +444,85 @@
 
 <main class="deck" id="deck">
 
-  <!-- 1. 표지 -->
+  <!-- 1. 표지: 아톰 — 신호등 — 비트 -->
   <section class="slide" data-i="0" aria-label="표지">
-    <div class="mark rise" aria-hidden="true">
-      <i class="l-g"></i><i class="l-y"></i><i class="l-r"></i>
+    <div class="emblem rise" aria-hidden="true">
+      <div class="e-atom"></div>
+      <div class="signal sm"><i class="l-g"></i><i class="l-y"></i><i class="l-r"></i></div>
+      <div class="e-bit"></div>
     </div>
     <div class="kicker rise d1">2026 수업 나눔</div>
     <h1 class="hero med rise d2">
       2026년의 AI융합교육,<br>
       <span class="green">On AI</span>와 <span class="red">Non AI</span> <span class="yellow">사이</span>에서
     </h1>
-    <p class="sub rise d3">바이브 코딩의 시대, 정보 수업의 두 갈래 실험</p>
+    <p class="sub rise d3"><span class="amber">아톰</span>과 <span class="cyan">비트</span>, 두 세상 사이에 신호등을 세웠습니다.</p>
   </section>
 
-  <!-- 2. 수업 기획 의도 -->
-  <section class="slide" data-i="1" aria-label="수업 기획 의도">
-    <div class="kicker rise">수업 기획 의도</div>
-    <div class="label rise d1">바이브 코딩 열풍 속에서, 정보 수업은</div>
-    <h2 class="lead big rise d2">
-      AI를 <b class="green">활용하는 것</b>이 답인가,<br>
-      <b class="red">막는 것</b>이 답인가?
+  <!-- 2. 아톰의 세상 -->
+  <section class="slide" data-i="1" aria-label="아톰의 세상">
+    <div class="glyph rise"><div class="atom" aria-hidden="true"></div></div>
+    <div class="label rise d1">우리가 사는 곳</div>
+    <h2 class="hero med rise d2"><span class="amber">아톰</span>의 세상</h2>
+    <p class="sub rise d3">물질과 몸, 그리고 공간.<br>손으로 만질 수 있는 모든 것.</p>
+  </section>
+
+  <!-- 3. 비트의 세상 -->
+  <section class="slide" data-i="2" aria-label="비트의 세상">
+    <div class="glyph rise" aria-hidden="true">
+      <div class="bits" id="bitsGrid"></div>
+    </div>
+    <div class="label rise d1">또 하나의 세상</div>
+    <h2 class="hero med rise d2"><span class="cyan">비트</span>의 세상</h2>
+    <p class="sub rise d3">정보와 화면, 그리고 네트워크.<br>모든 것이 <span class="cyan">0</span>과 <span class="cyan">1</span>로 흐른다.</p>
+  </section>
+
+  <!-- 4. 둘을 잇는 다리, AI -->
+  <section class="slide" data-i="3" aria-label="둘을 잇는 AI">
+    <div class="bridge rise" aria-hidden="true">
+      <div class="ai-tag">AI</div>
+      <div class="node-atom"></div>
+      <svg viewBox="0 0 720 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#F3B03A"/>
+            <stop offset="50%" stop-color="#FFFFFF"/>
+            <stop offset="100%" stop-color="#5AD6E6"/>
+          </linearGradient>
+        </defs>
+        <path class="link" d="M 70 100 C 260 40, 460 160, 650 100"/>
+      </svg>
+      <div class="node-bits"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="label rise d2">두 세상 사이에 다리가 놓였습니다.</div>
+    <h2 class="hero med rise d3">아톰과 비트를 잇는, AI</h2>
+  </section>
+
+  <!-- 5. 전환: 교실의 질문 -->
+  <section class="slide" data-i="4" aria-label="교실의 질문">
+    <div class="kicker rise">그런데, 교실에서는</div>
+    <h2 class="lead big rise d1">
+      이 다리에 언제 <b class="green">초록불</b>을,<br>
+      언제 <b class="red">빨간불</b>을 켜야 할까?
     </h2>
+    <p class="sub rise d3">바이브 코딩 열풍 속에서,<br>정보 수업이 마주한 질문입니다.</p>
   </section>
 
-  <!-- 3. 올해의 실험 -->
-  <section class="slide" data-i="2" aria-label="올해의 실험">
-    <div class="label rise">그래서 올해는, AI에게</div>
-    <h2 class="lead rise d1">
+  <!-- 6. 올해의 실험 -->
+  <section class="slide" data-i="5" aria-label="올해의 실험">
+    <div class="signal rise" aria-hidden="true" style="margin-bottom:clamp(26px,4.6vh,54px)">
+      <i class="l-g"></i><i class="l-y"></i><i class="l-r"></i>
+    </div>
+    <div class="label rise d1">그래서 올해는, AI에게</div>
+    <h2 class="lead rise d2">
       어떤 수업에서는 <b class="green">초록불</b>을 켜고,<br>
       어떤 수업에서는 <b class="red">빨간불</b>을 켰습니다.
     </h2>
     <p class="sub rise d3">무엇이 학생들의 성장과 문제해결능력 향상에<br>도움이 되는지 함께 나눕니다.</p>
   </section>
 
-  <!-- 4. On AI = 초록불 -->
-  <section class="slide" data-i="3" aria-label="On AI, 초록불">
+  <!-- 7. On AI = 초록불 -->
+  <section class="slide" data-i="6" aria-label="On AI, 초록불">
     <div class="kicker rise">On AI · <span class="green">초록불</span></div>
     <h2 class="lead rise d1">
       알고리즘보다 <b class="green">빠르고 쉽게</b> 결과물을 만들며,<br>
@@ -366,8 +536,8 @@
     <p class="sub rise d3">만드는 속도가 빨라질수록,<br>문제 자체를 생각할 시간이 늘어납니다.</p>
   </section>
 
-  <!-- 5. Non AI = 빨간불 -->
-  <section class="slide" data-i="4" aria-label="Non AI, 빨간불">
+  <!-- 8. Non AI = 빨간불 -->
+  <section class="slide" data-i="7" aria-label="Non AI, 빨간불">
     <div class="kicker rise">Non AI · <span class="red">빨간불</span></div>
     <h2 class="lead rise d1">
       <b>알고리즘</b>과 <b>사고력</b>을 키우는 수업에서는<br>
@@ -376,8 +546,8 @@
     <p class="sub rise d3">스스로 코드를 짜고 고쳐 보며,<br>생각하는 힘을 기릅니다.</p>
   </section>
 
-  <!-- 6. 활용한 도구 및 에듀테크 -->
-  <section class="slide" data-i="5" aria-label="활용한 도구 및 에듀테크">
+  <!-- 9. 활용한 도구 및 에듀테크 -->
+  <section class="slide" data-i="8" aria-label="활용한 도구 및 에듀테크">
     <div class="kicker rise">활용한 도구 · 에듀테크</div>
     <div class="label rise d1">수업에 필요한 도구는 AI와 함께 직접 만들었습니다</div>
     <div class="cards rise d2">
@@ -408,34 +578,34 @@
     </div>
   </section>
 
-  <!-- 7. 수업의 흐름 -->
-  <section class="slide" data-i="6" aria-label="수업의 흐름">
+  <!-- 10. 수업의 흐름 -->
+  <section class="slide" data-i="9" aria-label="수업의 흐름">
     <div class="kicker rise">수업의 흐름</div>
     <div class="tracks rise d1">
       <div class="track t-on">
         <span class="tag">On AI</span>
-        <span class="chip">아이데이션 (화이트보드)</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip hl">바이브 코딩</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">협력과 소통</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">개선</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">배포</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">발표</span>
+        <span class="chip" data-step="1">아이데이션 (화이트보드)</span><span class="sep" data-step="2" data-quiet aria-hidden="true">›</span>
+        <span class="chip hl" data-step="2">바이브 코딩</span><span class="sep" data-step="3" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="3">협력과 소통</span><span class="sep" data-step="4" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="4">개선</span><span class="sep" data-step="5" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="5">배포</span><span class="sep" data-step="6" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="6">발표</span>
       </div>
       <div class="track t-non">
-        <span class="tag">Non AI</span>
-        <span class="chip">아이데이션 (화이트보드)</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip hl">손 코딩</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">협력과 소통</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">개선</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">배포</span><span class="sep" aria-hidden="true">›</span>
-        <span class="chip">발표</span>
+        <span class="tag" data-step="7" data-quiet>Non AI</span>
+        <span class="chip" data-step="7" data-quiet>아이데이션 (화이트보드)</span><span class="sep" data-step="7" data-quiet aria-hidden="true">›</span>
+        <span class="chip hl" data-step="7">손 코딩</span><span class="sep" data-step="7" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="7" data-quiet>협력과 소통</span><span class="sep" data-step="7" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="7" data-quiet>개선</span><span class="sep" data-step="7" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="7" data-quiet>배포</span><span class="sep" data-step="7" data-quiet aria-hidden="true">›</span>
+        <span class="chip" data-step="7" data-quiet>발표</span>
       </div>
     </div>
-    <p class="sub rise d3">두 수업의 차이는 단 하나, 코드를 만드는 방법입니다.</p>
+    <p class="sub" data-step="8">두 수업의 차이는 단 하나, <b>코드를 만드는 방법</b>입니다.</p>
   </section>
 
-  <!-- 8. 주요 장면 → 키노트 뒤 실제 시연으로 진행 -->
-  <section class="slide" data-i="7" aria-label="주요 장면">
+  <!-- 11. 주요 장면 → 키노트 뒤 실제 시연으로 진행 -->
+  <section class="slide" data-i="10" aria-label="주요 장면">
     <div class="kicker rise">주요 장면</div>
     <h2 class="lead rise d1">
       화면 캡처 대신,<br>
@@ -444,8 +614,8 @@
     <p class="sub rise d3">당곡 AI 채팅 · pythink2 · vpylab · 프롬프팅 챌린지 · 이미테이션 게임</p>
   </section>
 
-  <!-- 9. 학생 반응 -->
-  <section class="slide" data-i="8" aria-label="학생 반응">
+  <!-- 12. 학생 반응 -->
+  <section class="slide" data-i="11" aria-label="학생 반응">
     <div class="kicker rise">학생 반응 · 좋았던 것들</div>
     <div class="points rise d1">
       <div class="point">
@@ -464,8 +634,8 @@
     </div>
   </section>
 
-  <!-- 10. 교사의 인사이트: 둘 다 필요하다 -->
-  <section class="slide" data-i="9" aria-label="교사의 인사이트">
+  <!-- 13. 교사의 인사이트: 둘 다 필요하다 -->
+  <section class="slide" data-i="12" aria-label="교사의 인사이트">
     <div class="kicker rise">교사의 인사이트</div>
     <h2 class="lead rise d1">
       궁극적으로는 <b>둘 다</b> 필요합니다.<br>
@@ -475,28 +645,31 @@
     문제해결력을 키우려면 AI를 잘 쓰는 법도 배워야 합니다.</p>
   </section>
 
-  <!-- 11. 지향점: 노란불이 켜진 그 사이 -->
-  <section class="slide" data-i="10" aria-label="지향점">
+  <!-- 14. 지향점: 두 세상을 스스로 잇는 힘 -->
+  <section class="slide" data-i="13" aria-label="지향점">
     <div class="kicker rise">지향점 · <span class="yellow">그 사이</span></div>
     <div class="label rise d1">두 불빛 사이에서 우리가 향하는 곳은,</div>
     <h2 class="hero med rise d2"><span class="yellow">융합적</span><br>문제해결교육</h2>
     <p class="sub rise d3">AI 시대에 더 깊이 생각하고,<br>
     더 넓고 창의적으로 생각하고 만들며,<br>
-    함께 협력하고 개선하는 교육을 지향합니다.</p>
+    함께 협력하고 개선하는 교육.<br>
+    <span class="amber">아톰</span>과 <span class="cyan">비트</span>, 두 세상을 스스로 잇는 힘을 기릅니다.</p>
   </section>
 
-  <!-- 12. 결론: 선생님이 먼저 -->
-  <section class="slide" data-i="11" aria-label="선생님이 먼저">
-    <div class="label rise">그 출발은,</div>
-    <h2 class="hero med rise d1">선생님이 <span class="green">먼저</span><br>경험하는 것</h2>
+  <!-- 15. 결론: 신호등을 쥔 사람 -->
+  <section class="slide" data-i="14" aria-label="선생님이 먼저">
+    <div class="label rise">다리 위 신호등을 쥔 사람은 선생님이기에,</div>
+    <h2 class="hero med rise d1">선생님이 <span class="green">먼저</span><br>경험해야 합니다</h2>
     <p class="sub rise d3">AI로 문제를 해결해 보는 경험이 중요합니다.<br>
     가장 좋은 방법은 AI로 <b>교수학습자료를 직접 만들어 보는 것</b>입니다.</p>
   </section>
 
-  <!-- 13. 마무리 -->
-  <section class="slide" data-i="12" aria-label="마무리">
-    <div class="mark rise" aria-hidden="true">
-      <i class="l-g"></i><i class="l-y"></i><i class="l-r"></i>
+  <!-- 16. 마무리 -->
+  <section class="slide" data-i="15" aria-label="마무리">
+    <div class="emblem rise" aria-hidden="true">
+      <div class="e-atom"></div>
+      <div class="signal sm"><i class="l-g"></i><i class="l-y"></i><i class="l-r"></i></div>
+      <div class="e-bit"></div>
     </div>
     <div class="kicker rise d1">2026년의 AI융합교육</div>
     <h2 class="hero med rise d2"><span class="green">On AI</span>와 <span class="red">Non AI</span>,<br>그 <span class="yellow">사이</span>에서</h2>
@@ -506,7 +679,7 @@
 </main>
 
 <nav class="dots" id="dots" aria-label="슬라이드 이동"></nav>
-<div class="counter" id="counter">01 / 13</div>
+<div class="counter" id="counter">01 / 16</div>
 <div class="hint" id="hint">→ / Space · 다음</div>
 
 <script>
@@ -531,6 +704,40 @@
     dots.push(b);
   }
 
+  // 비트 격자 (3번 슬라이드) — 25칸
+  var grid = document.getElementById('bitsGrid');
+  if(grid){
+    for(var g=0; g<25; g++){
+      var d = document.createElement('span');
+      d.className = 'bit';
+      d.style.animationDelay = (g*30) + 'ms';
+      grid.appendChild(d);
+    }
+  }
+
+  // ---- 슬라이드 내부 빌드(순차 공개) ----
+  // [data-step] 요소는 클릭마다 한 단계씩 나타난다.
+  // 현재 단계의 요소에는 스포트라이트(.now)를 준다. data-quiet 는 공개만 되고 스포트라이트는 받지 않는다.
+  var step = 0;
+  function maxStepOf(sl){
+    var m = 0;
+    var els = sl.querySelectorAll('[data-step]');
+    for(var k=0;k<els.length;k++){
+      var v = parseInt(els[k].getAttribute('data-step'), 10);
+      if(v > m) m = v;
+    }
+    return m;
+  }
+  function renderSteps(){
+    var els = slides[idx].querySelectorAll('[data-step]');
+    for(var k=0;k<els.length;k++){
+      var el = els[k];
+      var v = parseInt(el.getAttribute('data-step'), 10);
+      el.classList.toggle('shown', step >= v);
+      el.classList.toggle('now', step === v && !el.hasAttribute('data-quiet'));
+    }
+  }
+
   function render(){
     slides.forEach(function(sl, n){
       sl.classList.remove('active','past');
@@ -540,17 +747,26 @@
     dots.forEach(function(dt, n){ dt.classList.toggle('on', n === idx); });
     bar.style.width = ((idx)/(total-1)*100) + '%';
     counter.textContent = pad(idx+1) + ' / ' + pad(total);
+    renderSteps();
   }
   function pad(n){ return (n<10?'0':'') + n; }
 
   function go(n){
     n = Math.max(0, Math.min(total-1, n));
     if(n === idx) return;
+    // 뒤로 이동해 들어간 빌드 슬라이드는 완성된 상태로 보여 준다
+    step = (n < idx) ? maxStepOf(slides[n]) : 0;
     idx = n;
     render();
   }
-  function next(){ if(idx < total-1) go(idx+1); }
-  function prev(){ if(idx > 0) go(idx-1); }
+  function next(){
+    if(step < maxStepOf(slides[idx])){ step++; renderSteps(); return; }
+    if(idx < total-1) go(idx+1);
+  }
+  function prev(){
+    if(step > 0){ step--; renderSteps(); return; }
+    if(idx > 0) go(idx-1);
+  }
 
   // 키보드
   document.addEventListener('keydown', function(e){
