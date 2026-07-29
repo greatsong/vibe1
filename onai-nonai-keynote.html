@@ -51,13 +51,22 @@
       var(--bg);
   }
 
-  .deck{ position:fixed; inset:0; }
+  /* 고정 캔버스: 모든 슬라이드는 1600x900 기준으로 그려지고,
+     화면 크기에 맞춰 통째로 확대/축소된다. 어떤 화면에서도 비율·줄바꿈·글꼴 크기가 같다. */
+  #fit{
+    position:fixed; left:50%; top:50%;
+    width:1600px; height:900px;
+    transform:translate(-50%,-50%) scale(1);
+    transform-origin:center center;
+  }
+
+  .deck{ position:absolute; inset:0; }
 
   .slide{
     position:absolute; inset:0;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
-    padding: clamp(28px, 6vw, 96px);
+    padding: 96px;
     text-align:center;
     opacity:0;
     visibility:hidden;
@@ -83,31 +92,31 @@
 
   /* ---- Typographic system ---- */
   .kicker{
-    font-size:clamp(12px, 1.5vw, 16px);
+    font-size:16px;
     font-weight:500;
     letter-spacing:.42em;
     text-transform:uppercase;
     color:var(--ink-faint);
-    margin-bottom:clamp(20px,3.4vh,42px);
+    margin-bottom:30.6px;
     padding-left:.42em;
   }
   .label{
-    font-size:clamp(15px, 2.1vw, 24px);
+    font-size:24px;
     font-weight:400;
     color:var(--ink-dim);
     letter-spacing:.04em;
-    margin-bottom:clamp(14px, 2.6vh, 30px);
+    margin-bottom:23.4px;
   }
   .hero{
     font-weight:800;
     line-height:1.06;
     letter-spacing:-.03em;
-    font-size:clamp(40px, 8vw, 120px);
+    font-size:120px;
   }
-  .hero.med{ font-size:clamp(34px, 6.2vw, 92px); }
+  .hero.med{ font-size:92px; }
   .sub{
-    margin-top:clamp(22px,3.6vh,40px);
-    font-size:clamp(15px, 2.2vw, 26px);
+    margin-top:32.4px;
+    font-size:26px;
     font-weight:400;
     color:var(--ink-dim);
     letter-spacing:.02em;
@@ -122,7 +131,7 @@
   .nowrap{ white-space:nowrap; }
 
   .lead{
-    font-size:clamp(24px, 4.4vw, 60px);
+    font-size:60px;
     font-weight:300;
     line-height:1.4;
     letter-spacing:-.015em;
@@ -131,7 +140,7 @@
   }
   .lead b{ font-weight:800; letter-spacing:-.025em; }
   .lead.big{
-    font-size:clamp(34px, 7.4vw, 104px);
+    font-size:104px;
     line-height:1.16;
     letter-spacing:-.03em;
     max-width:min(100%, 15em);
@@ -139,13 +148,13 @@
 
   /* ---- 아톰 · 비트 글리프 ---- */
   .glyph{
-    height:clamp(110px, 24vh, 240px);
+    height:216px;
     display:flex; align-items:center; justify-content:center;
-    margin-bottom:clamp(28px,4.6vh,58px);
+    margin-bottom:41.4px;
     position:relative;
   }
   .atom{
-    width:clamp(90px,14vh,156px); height:clamp(90px,14vh,156px);
+    width:126px; height:126px;
     border-radius:50%;
     background:radial-gradient(circle at 38% 32%, var(--amber-soft), var(--amber) 55%, #B87510 100%);
     box-shadow:0 0 4px rgba(243,176,58,.5), 0 0 44px rgba(243,176,58,.32), 0 0 120px rgba(243,176,58,.18);
@@ -156,10 +165,10 @@
     50%{ transform:scale(1.045); }
   }
   .bits{
-    display:grid; grid-template-columns:repeat(5, 1fr); gap:clamp(8px,1.5vh,15px);
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:13.5px;
   }
   .bit{
-    width:clamp(14px,2.2vh,24px); height:clamp(14px,2.2vh,24px);
+    width:19.8px; height:19.8px;
     border-radius:3px;
     background:var(--cyan);
     box-shadow:0 0 10px rgba(90,214,230,.5);
@@ -170,21 +179,21 @@
 
   /* ---- 다리: 아톰과 비트를 잇는 AI ---- */
   .bridge{
-    width:min(720px,84vw); height:clamp(120px,22vh,200px);
-    position:relative; margin-bottom:clamp(26px,4vh,52px);
+    width:720px; height:198px;
+    position:relative; margin-bottom:36px;
   }
   .bridge .node-atom{
     position:absolute; left:4%; top:50%; transform:translateY(-50%);
-    width:clamp(64px,11vh,110px); height:clamp(64px,11vh,110px); border-radius:50%;
+    width:99px; height:99px; border-radius:50%;
     background:radial-gradient(circle at 38% 32%, var(--amber-soft), var(--amber) 55%, #B87510 100%);
     box-shadow:0 0 40px rgba(243,176,58,.35),0 0 90px rgba(243,176,58,.16);
   }
   .bridge .node-bits{
     position:absolute; right:4%; top:50%; transform:translateY(-50%);
-    display:grid; grid-template-columns:repeat(3,1fr); gap:clamp(6px,1vh,10px);
+    display:grid; grid-template-columns:repeat(3,1fr); gap:9px;
   }
   .bridge .node-bits i{
-    width:clamp(13px,2vh,22px); height:clamp(13px,2vh,22px); border-radius:3px;
+    width:18px; height:18px; border-radius:3px;
     background:var(--cyan); box-shadow:0 0 10px rgba(90,214,230,.5); display:block;
   }
   .bridge svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; }
@@ -199,8 +208,8 @@
   }
   @keyframes draw{ to{ stroke-dashoffset:0; } }
   .bridge .ai-tag{
-    position:absolute; left:50%; top:calc(50% - clamp(40px,8vh,64px)); transform:translateX(-50%);
-    font-size:clamp(13px,1.7vw,18px); letter-spacing:.34em; color:var(--ink-dim);
+    position:absolute; left:50%; top:calc(50% - 64px); transform:translateX(-50%);
+    font-size:18px; letter-spacing:.34em; color:var(--ink-dim);
     text-transform:uppercase; opacity:0;
   }
   .slide.active .bridge .ai-tag{ animation:fadeUp .8s var(--ease) 1.4s both; }
@@ -208,22 +217,22 @@
 
   /* ---- 신호등 ---- */
   .signal{
-    display:flex; align-items:center; gap:clamp(14px,2.2vw,26px);
-    padding:clamp(12px,1.8vh,18px) clamp(20px,2.6vw,32px);
+    display:flex; align-items:center; gap:26px;
+    padding:16.2px 32px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.1);
     background:rgba(255,255,255,.03);
   }
   .signal.sm{
-    gap:clamp(8px,1.2vw,14px);
-    padding:clamp(8px,1.2vh,12px) clamp(14px,1.8vw,20px);
+    gap:14px;
+    padding:10.8px 20px;
   }
   .signal i{
     display:block;
-    width:clamp(22px,3.8vh,40px); height:clamp(22px,3.8vh,40px);
+    width:34.2px; height:34.2px;
     border-radius:50%;
   }
-  .signal.sm i{ width:clamp(13px,2.2vh,22px); height:clamp(13px,2.2vh,22px); }
+  .signal.sm i{ width:19.8px; height:19.8px; }
   .signal .l-g{
     background:radial-gradient(circle at 38% 32%, var(--green-soft), var(--green) 60%, #2E9B58 100%);
     box-shadow:0 0 12px rgba(91,227,139,.55), 0 0 40px rgba(91,227,139,.25);
@@ -243,18 +252,18 @@
 
   /* ---- 엠블럼: 아톰 — 신호등 — 비트 ---- */
   .emblem{
-    display:flex; align-items:center; gap:clamp(16px,2.6vw,30px);
-    margin-bottom:clamp(26px,4.6vh,54px);
+    display:flex; align-items:center; gap:30px;
+    margin-bottom:41.4px;
   }
   .emblem .e-atom{
-    width:clamp(30px,5vh,52px); height:clamp(30px,5vh,52px);
+    width:45px; height:45px;
     border-radius:50%;
     background:radial-gradient(circle at 38% 32%, var(--amber-soft), var(--amber) 55%, #B87510 100%);
     box-shadow:0 0 14px rgba(243,176,58,.5), 0 0 52px rgba(243,176,58,.26);
     animation:breathe 6s var(--ease) infinite;
   }
   .emblem .e-bit{
-    width:clamp(27px,4.6vh,48px); height:clamp(27px,4.6vh,48px);
+    width:41.4px; height:41.4px;
     border-radius:8px;
     background:var(--cyan);
     box-shadow:0 0 14px rgba(90,214,230,.55), 0 0 48px rgba(90,214,230,.25);
@@ -263,15 +272,15 @@
 
   /* ---- 역량 칩 ---- */
   .chip-row{
-    display:flex; gap:clamp(8px,1.2vw,16px); flex-wrap:wrap; justify-content:center;
-    margin-top:clamp(20px,3.4vh,38px);
+    display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
+    margin-top:30.6px;
   }
   .chip{
-    padding:clamp(7px,1.2vh,11px) clamp(11px,1.4vw,18px);
+    padding:10.8px 18px;
     border-radius:999px;
     border:1px solid rgba(255,255,255,.14);
     background:rgba(255,255,255,.03);
-    font-size:clamp(12px,1.5vw,17px);
+    font-size:17px;
     color:var(--ink-dim);
     white-space:nowrap;
   }
@@ -285,40 +294,40 @@
   /* ---- 도구 카드 ---- */
   .cards{
     display:grid; grid-template-columns:repeat(3, 1fr);
-    gap:clamp(10px,1.6vw,18px);
-    width:min(980px, 92vw);
+    gap:18px;
+    width:980px;
   }
   .card{
     text-align:left;
-    padding:clamp(14px,2.2vh,24px) clamp(16px,1.8vw,24px);
+    padding:19.8px 24px;
     border-radius:14px;
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.09);
   }
   .card .name{
-    font-size:clamp(15px,1.9vw,21px); font-weight:700; letter-spacing:-.02em;
+    font-size:21px; font-weight:700; letter-spacing:-.02em;
     margin-bottom:.45em;
   }
   .card .desc{
-    font-size:clamp(12.5px,1.5vw,16px); color:var(--ink-dim); line-height:1.55;
+    font-size:16px; color:var(--ink-dim); line-height:1.55;
   }
   .card.c-green .name{ color:var(--green); }
   .card.c-yellow .name{ color:var(--yellow); }
 
   /* ---- 수업 흐름 트랙 ---- */
   .tracks{
-    display:flex; flex-direction:column; gap:clamp(14px,2.6vh,26px);
-    width:min(1040px, 94vw);
+    display:flex; flex-direction:column; gap:23.4px;
+    width:1040px;
   }
   .track{
     display:flex; align-items:center; justify-content:center;
-    flex-wrap:wrap; gap:clamp(6px,.9vw,12px);
+    flex-wrap:wrap; gap:12px;
   }
   .track .tag{
     font-weight:800; letter-spacing:.02em;
-    font-size:clamp(14px,1.9vw,21px);
-    min-width:clamp(64px,8vw,96px); text-align:right;
-    margin-right:clamp(6px,1vw,14px);
+    font-size:21px;
+    min-width:96px; text-align:right;
+    margin-right:14px;
   }
   .track.t-on .tag{ color:var(--green); }
   .track.t-non .tag{ color:var(--red); }
@@ -335,7 +344,7 @@
     background:rgba(255,122,107,.12);
     box-shadow:0 0 18px rgba(255,122,107,.2);
   }
-  .track .sep{ color:var(--ink-faint); font-size:clamp(12px,1.4vw,16px); }
+  .track .sep{ color:var(--ink-faint); font-size:16px; }
 
   /* ---- 슬라이드 내부 빌드(클릭마다 한 단계씩 공개) ---- */
   [data-step]{
@@ -362,12 +371,12 @@
 
   /* ---- 학생 반응 리스트 ---- */
   .points{
-    display:flex; flex-direction:column; gap:clamp(14px,2.4vh,24px);
-    width:min(860px, 90vw); text-align:left;
+    display:flex; flex-direction:column; gap:21.6px;
+    width:860px; text-align:left;
   }
   .point{
-    display:flex; gap:clamp(12px,1.6vw,20px); align-items:flex-start;
-    padding:clamp(14px,2.2vh,22px) clamp(16px,2vw,26px);
+    display:flex; gap:20px; align-items:flex-start;
+    padding:19.8px 26px;
     border-radius:14px;
     background:rgba(255,255,255,.04);
     border:1px solid rgba(255,255,255,.08);
@@ -377,17 +386,17 @@
     background:linear-gradient(180deg, var(--green), var(--yellow), var(--red));
   }
   .point p{
-    font-size:clamp(14px,1.9vw,21px); line-height:1.6; color:var(--ink);
+    font-size:21px; line-height:1.6; color:var(--ink);
     font-weight:400;
   }
   .point p small{
     display:block; margin-top:.3em;
-    font-size:clamp(12px,1.4vw,15px); color:var(--ink-dim);
+    font-size:15px; color:var(--ink-dim);
   }
 
   /* ---- Progress dots ---- */
   .dots{
-    position:fixed; left:50%; bottom:clamp(20px,3.6vh,34px); transform:translateX(-50%);
+    position:absolute; left:50%; bottom:32.4px; transform:translateX(-50%);
     display:flex; gap:10px; z-index:20;
   }
   .dot{
@@ -400,33 +409,23 @@
   .dot.on{ width:24px; border-radius:4px; background:var(--ink); opacity:1; }
 
   .topbar{
-    position:fixed; top:0; left:0; height:2px; z-index:20;
+    position:absolute; top:0; left:0; height:2px; z-index:20;
     background:linear-gradient(90deg,var(--amber),var(--green),var(--yellow),var(--red),var(--cyan));
     width:0; transition:width .7s var(--ease);
   }
 
   .hint{
-    position:fixed; right:clamp(18px,3vw,32px); bottom:clamp(20px,3.6vh,34px);
+    position:absolute; right:32px; bottom:32.4px;
     font-size:12px; letter-spacing:.14em; color:var(--ink-faint); z-index:20;
     text-transform:uppercase; user-select:none;
     transition:opacity .6s;
   }
   .counter{
-    position:fixed; left:clamp(18px,3vw,32px); bottom:clamp(20px,3.6vh,34px);
+    position:absolute; left:32px; bottom:32.4px;
     font-size:12px; letter-spacing:.18em; color:var(--ink-faint); z-index:20;
     font-variant-numeric:tabular-nums;
   }
 
-  @media (max-width:720px){
-    .cards{ grid-template-columns:repeat(2, 1fr); }
-    .track .tag{ width:100%; text-align:center; margin-right:0; }
-  }
-  @media (max-width:520px){
-    .hint{ display:none; }
-    .kicker{ letter-spacing:.3em; }
-    .cards{ grid-template-columns:1fr 1fr; }
-    .dots{ gap:7px; }
-  }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; }
@@ -440,6 +439,7 @@
 </head>
 <body>
 <div class="stage"></div>
+<div id="fit">
 <div class="topbar" id="bar"></div>
 
 <main class="deck" id="deck">
@@ -510,7 +510,7 @@
 
   <!-- 6. 올해의 실험 -->
   <section class="slide" data-i="5" aria-label="올해의 실험">
-    <div class="signal rise" aria-hidden="true" style="margin-bottom:clamp(26px,4.6vh,54px)">
+    <div class="signal rise" aria-hidden="true" style="margin-bottom:41.4px">
       <i class="l-g"></i><i class="l-y"></i><i class="l-r"></i>
     </div>
     <div class="label rise d1">그래서 올해는, AI에게</div>
@@ -681,6 +681,7 @@
 <nav class="dots" id="dots" aria-label="슬라이드 이동"></nav>
 <div class="counter" id="counter">01 / 16</div>
 <div class="hint" id="hint">→ / Space · 다음</div>
+</div><!-- /#fit -->
 
 <script>
 (function(){
@@ -778,11 +779,20 @@
     else if(e.key === 'End'){ e.preventDefault(); go(total-1); }
   });
 
-  // 화면 클릭 = 다음 (링크·점 제외)
-  document.getElementById('deck').addEventListener('click', function(e){
+  // 화면 클릭 = 다음 (링크·점 제외). 레터박스 영역 클릭도 진행되도록 문서 전체에서 받는다.
+  document.addEventListener('click', function(e){
     if(e.target.closest('a') || e.target.closest('.dot')) return;
     next();
   });
+
+  // 고정 캔버스(1600x900)를 화면에 맞춰 통째로 확대/축소
+  var fitEl = document.getElementById('fit');
+  function fit(){
+    var s = Math.min(window.innerWidth/1600, window.innerHeight/900);
+    fitEl.style.transform = 'translate(-50%,-50%) scale(' + s + ')';
+  }
+  window.addEventListener('resize', fit);
+  fit();
 
   // 터치 스와이프
   var tx = 0, ty = 0;
@@ -801,7 +811,7 @@
   var hid = false;
   function hideHint(){ if(!hid){ hid = true; hint.style.opacity = '0'; } }
   document.addEventListener('keydown', hideHint, {once:true});
-  document.getElementById('deck').addEventListener('click', hideHint, {once:true});
+  document.addEventListener('click', hideHint, {once:true});
 
   render();
 })();
