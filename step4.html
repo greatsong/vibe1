@@ -29,14 +29,14 @@
     </ul>
   </div>
 
-  <p>지금까지는 <code>app.py</code> 하나를 계속 덮어썼습니다. 그래서 저장소에는 STEP 3에서 만든 앱만 남아 있습니다. 이번 시간에는 앱들을 나란히 두고 왼쪽 메뉴에서 고르게 만듭니다. 스트림릿이 폴더 하나로 이 구조를 지원합니다.</p>
+  <p>지금까지는 <code>main.py</code> 하나를 계속 덮어썼습니다. 그래서 저장소에는 STEP 3에서 만든 앱만 남아 있습니다. 이번 시간에는 앱들을 나란히 두고 왼쪽 메뉴에서 고르게 만듭니다. 스트림릿이 폴더 하나로 이 구조를 지원합니다.</p>
 
   <h2>1. <code>pages/</code> 폴더 규칙</h2>
   <p>앱 파일 옆에 <code>pages</code>라는 폴더가 있으면, 스트림릿은 그 안의 <code>.py</code> 파일을 <b>각각 한 페이지로</b> 읽고 왼쪽에 메뉴를 만들어 줍니다. 설정 파일도, 메뉴를 만드는 코드도 없습니다.</p>
   <ul>
     <li>폴더 이름은 <code>pages</code> 하나로 고정. 다른 이름은 인식하지 않습니다</li>
     <li>폴더 안의 <code>.py</code> 파일만 페이지가 됩니다. 하위 폴더와 다른 확장자는 무시됩니다</li>
-    <li>앱 파일(<code>app.py</code>)은 그대로 <b>첫 화면</b>이 되고 메뉴 맨 위에 놓입니다</li>
+    <li>앱 파일(<code>main.py</code>)은 그대로 <b>첫 화면</b>이 되고 메뉴 맨 위에 놓입니다</li>
   </ul>
 
   <h3>파일 이름이 곧 메뉴 이름입니다</h3>
@@ -65,10 +65,10 @@
 
   <h2>2. 저장소가 이렇게 바뀝니다</h2>
   <div class="codewrap code"><span class="label">지금 (STEP 3 직후)</span><pre>my-vibe-app/
-├── app.py              ← STEP 3에서 만든 AI 채팅앱만 남아 있음
+├── main.py              ← STEP 3에서 만든 AI 채팅앱만 남아 있음
 └── requirements.txt</pre></div>
   <div class="codewrap code"><span class="label">이 시간이 끝나면</span><pre>my-vibe-app/
-├── app.py              ← 표지 (첫 화면)
+├── main.py              ← 표지 (첫 화면)
 ├── requirements.txt    ← 저장소에 하나. 사이트 전체에 적용됨
 └── pages/
     ├── 1_고령화_지도.py    ← STEP 1 코드 그대로
@@ -78,9 +78,9 @@
   <div class="callout tip">
     <div class="h">💡 앞 앱의 코드는 교재에서 복사하세요</div>
     <ul>
-      <li><code>app.py</code>를 계속 덮어써 왔으니 저장소에는 마지막 앱만 남아 있습니다</li>
-      <li>STEP 1·STEP 2는 페이지 아래쪽 접힌 <b>🧯 시간이 부족하거나 프롬프트가 어긋났다면 — 완성 코드 복붙</b> 블록 안의 <b>app.py 전체 (그대로 복사)</b>에서 가져옵니다</li>
-      <li>STEP 3도 같은 <b>🧯 완성 코드 복붙</b> 블록의 <b>app.py 전체 (그대로 복사)</b>에서 가져옵니다. 말투 고르기·대화 지우기까지 포함된 버전입니다</li>
+      <li><code>main.py</code>를 계속 덮어써 왔으니 저장소에는 마지막 앱만 남아 있습니다</li>
+      <li>STEP 1·STEP 2는 페이지 아래쪽 접힌 <b>🧯 시간이 부족하거나 프롬프트가 어긋났다면 — 완성 코드 복붙</b> 블록 안의 <b>main.py 전체 (그대로 복사)</b>에서 가져옵니다</li>
+      <li>STEP 3도 같은 <b>🧯 완성 코드 복붙</b> 블록의 <b>main.py 전체 (그대로 복사)</b>에서 가져옵니다. 말투 고르기·대화 지우기까지 포함된 버전입니다</li>
       <li>깃허브 커밋 기록에서 되살릴 수도 있지만, 지금은 복사가 빠릅니다</li>
     </ul>
   </div>
@@ -95,7 +95,7 @@
 
   <h2>3. 표지 만들기</h2>
   <p>첫 화면은 목차 노릇을 합니다. 데이터도 인증키도 쓰지 않는 화면이라 짧습니다. 이것도 주문해서 만듭니다.</p>
-  <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 만든 앱 세 개를 한 사이트에 모았어. 그 사이트의 첫 화면(app.py)을 만들어 줘.
+  <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 만든 앱 세 개를 한 사이트에 모았어. 그 사이트의 첫 화면(main.py)을 만들어 줘.
 왼쪽 메뉴는 pages 폴더에서 자동으로 생기니까, 표지 내용만 넣으면 돼.
 
 - 제목은 "내 수업 도구 모음". 브라우저 탭 제목도 같게 하고 탭 아이콘은 공구상자 이모지로.
@@ -107,7 +107,7 @@
   - AI 채팅 / 궁금한 것을 물어보면 한국어로 답해 주는 채팅앱입니다 / pages/3_AI_채팅.py
 - 맨 아래에 만든 사람과 연도를 작은 글씨로.
 - 이 파일에서는 데이터도 인증키도 쓰지 마.
-- 초보자용 한국어 주석을 달아서 app.py 전체 코드를 한 번에 줘.</pre></div>
+- 초보자용 한국어 주석을 달아서 main.py 전체 코드를 한 번에 줘.</pre></div>
   <p>돌아온 코드가 이런 모습이면 됩니다. 글자까지 같지 않아도 됩니다.</p>
   <div class="codewrap code"><span class="label">② AI가 준 코드 예시</span><pre>import streamlit as st
 
@@ -153,7 +153,7 @@ st.caption("만든 사람: ○○중학교 ○○○ · 2026")</pre></div>
   <ol class="steps">
     <li><span class="st">폴더와 첫 페이지를 한 번에</span><br>깃허브 저장소 <code>my-vibe-app</code> → <b>Add file</b> → <b>Create new file</b> → 파일 이름 칸에 <code>pages/1_고령화_지도.py</code> 입력. <b>슬래시(/)를 치는 순간 <code>pages</code> 폴더가 만들어집니다</b> → STEP 1 완성 코드 붙여넣기 → 아래 <b>Commit changes</b></li>
     <li><span class="st">나머지 두 페이지</span><br>같은 방법으로 <code>pages/2_박스오피스.py</code>(STEP 2 코드), <code>pages/3_AI_채팅.py</code>(STEP 3 코드). 이미 <code>pages</code> 폴더가 생겼으니 폴더 안으로 들어가서 <b>Add file</b>을 눌러도 됩니다</li>
-    <li><span class="st">첫 화면을 표지로 교체</span><br>저장소 맨 위의 <code>app.py</code> → 연필 아이콘 → 기존 내용 <b>전체 선택 후 삭제</b> → 위 표지 코드 붙여넣기 → <b>Commit changes</b></li>
+    <li><span class="st">첫 화면을 표지로 교체</span><br>저장소 맨 위의 <code>main.py</code> → 연필 아이콘 → 기존 내용 <b>전체 선택 후 삭제</b> → 위 표지 코드 붙여넣기 → <b>Commit changes</b></li>
     <li><span class="st">requirements.txt 확인</span><br>저장소 루트의 파일 하나가 사이트 전체에 적용됩니다. 아래 세 줄이 다 들어 있는지 보고, 빠진 줄이 있으면 연필로 추가</li>
     <li><span class="st">앱 주소 새로고침</span><br>내 <code>~.streamlit.app</code> 주소로 가서 새로고침. 빌드에 1~3분 걸립니다. 화면 오른쪽 아래 <b>Manage app</b>을 열어 두면 진행 상황이 보입니다</li>
   </ol>
@@ -164,7 +164,7 @@ openai</pre></div>
     <div class="h">⚠️ 메뉴에 페이지가 안 보일 때 볼 곳</div>
     <ul>
       <li>폴더 이름이 <code>pages</code>인지. <code>Pages</code>·<code>page</code>는 인식하지 않습니다</li>
-      <li>폴더 위치가 저장소 맨 위, <code>app.py</code>와 나란한 자리인지</li>
+      <li>폴더 위치가 저장소 맨 위, <code>main.py</code>와 나란한 자리인지</li>
       <li>확장자가 <code>.py</code>인지. 이름 칸에 <code>.py</code>를 안 적으면 확장자 없는 파일로 저장됩니다</li>
       <li>화면 구성은 조금씩 바뀔 수 있습니다. 버튼을 못 찾으면 화면을 캡처해서 AI에게 물어보세요</li>
     </ul>
@@ -193,7 +193,7 @@ SOLAR_API_KEY = "STEP 3에서 받은 실습용 키"</pre></div>
   <div class="callout mini">
     <div class="h">🧮 메뉴 첫 줄이 <code>app</code>으로 나옵니다</div>
     <ul>
-      <li>첫 화면의 메뉴 이름은 <b>파일 이름</b>에서 옵니다. 파일이 <code>app.py</code>라서 <code>app</code>으로 나옵니다</li>
+      <li>첫 화면의 메뉴 이름은 <b>파일 이름</b>에서 옵니다. 파일이 <code>main.py</code>라서 <code>app</code>으로 나옵니다</li>
       <li>코드 안의 탭 제목(<code>page_title</code>)을 바꿔도 이 메뉴 이름은 안 바뀝니다</li>
       <li>첫 화면 파일 이름은 앱을 배포할 때 지정한 값이라 지금 바꾸면 배포가 끊깁니다. 오늘은 그대로 둡니다</li>
     </ul>
@@ -209,8 +209,8 @@ SOLAR_API_KEY = "STEP 3에서 받은 실습용 키"</pre></div>
   <details class="glossary">
     <summary>🧯 시간이 부족하거나 프롬프트가 어긋났다면 — 표지 완성 코드 복붙</summary>
     <div class="gin">
-      <p>아래 코드를 <code>app.py</code>에 통째로 붙여넣고 커밋하면 표지가 완성됩니다. 페이지 파일 세 개만 <code>pages/</code>에 들어가 있으면 됩니다.</p>
-      <div class="codewrap code"><span class="label">app.py 전체 (그대로 복사)</span><pre>import streamlit as st
+      <p>아래 코드를 <code>main.py</code>에 통째로 붙여넣고 커밋하면 표지가 완성됩니다. 페이지 파일 세 개만 <code>pages/</code>에 들어가 있으면 됩니다.</p>
+      <div class="codewrap code"><span class="label">main.py 전체 (그대로 복사)</span><pre>import streamlit as st
 
 st.set_page_config(page_title="내 수업 도구 모음", page_icon="🧰", layout="wide")
 
@@ -250,7 +250,7 @@ st.caption("만든 사람: ○○중학교 ○○○ · 2026")</pre></div>
         <tbody>
           <tr><td class="term">멀티페이지 앱</td><td>주소 하나 안에 화면 여러 개를 두고 메뉴로 오가는 앱</td></tr>
           <tr><td class="term">pages 폴더</td><td>앱 파일 옆에 두는 폴더. 안의 <code>.py</code> 파일이 페이지가 되고 왼쪽 메뉴가 자동으로 생김</td></tr>
-          <tr><td class="term">첫 화면(entrypoint)</td><td>스트림릿이 제일 먼저 실행하는 파일. 배포할 때 지정하며 여기서는 <code>app.py</code></td></tr>
+          <tr><td class="term">첫 화면(entrypoint)</td><td>스트림릿이 제일 먼저 실행하는 파일. 배포할 때 지정하며 여기서는 <code>main.py</code></td></tr>
           <tr><td class="term">번호 접두사</td><td>파일 이름 앞의 숫자. 메뉴 순서를 정하고 메뉴 이름에서는 빠짐</td></tr>
           <tr><td class="term">st.page_link</td><td>다른 페이지로 바로 가는 링크를 화면에 놓는 명령</td></tr>
           <tr><td class="term">requirements.txt</td><td>설치할 라이브러리 목록. 저장소 루트의 파일 하나가 사이트 전체에 적용됨</td></tr>

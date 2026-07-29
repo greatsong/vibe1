@@ -25,7 +25,7 @@
     <div class="t">🎯 이 35분에 만드는 것</div>
     <ul>
       <li><b>AI 채팅앱</b> — 말을 걸면 정해 준 성격대로 답하고, 앞서 나눈 이야기를 기억하는 앱을 만듭니다</li>
-      <li>저장소도 앱 주소도 그대로. STEP 2와 똑같이 <b><code>app.py</code> 한 파일만</b> 바꿔 올립니다</li>
+      <li>저장소도 앱 주소도 그대로. STEP 2와 똑같이 <b><code>main.py</code> 한 파일만</b> 바꿔 올립니다</li>
       <li><b>성격 문장 한 줄</b>을 바꾸면 과목별 도우미가 됩니다</li>
     </ul>
   </div>
@@ -85,7 +85,7 @@ SOLAR_API_KEY = "받은 실습용 키"</pre></div>
 
   <h2>4. 프롬프트로 만들기</h2>
   <p>접속 주소·모델 이름·키 이름을 프롬프트에 정확히 적습니다. 이 셋을 비워 두면 AI가 그럴듯한 값을 지어냅니다.</p>
-  <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 AI 채팅앱 하나(app.py)를 만들어줘. 스트림릿 클라우드에 올릴 거야.
+  <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 AI 채팅앱 하나(main.py)를 만들어줘. 스트림릿 클라우드에 올릴 거야.
 
 - Solar API(모델 solar-open2, 접속 주소 https://api.upstage.ai/v1)를
   openai 라이브러리로 사용해. 모델 이름은 글자 그대로 쓰고 다른 이름으로 바꾸지 마.
@@ -101,10 +101,10 @@ SOLAR_API_KEY = "받은 실습용 키"</pre></div>
   한국어 안내 문구 한 줄을 보여줘.
 - 필요한 라이브러리 목록(requirements.txt)도 같이 줘. 버전 숫자 없이 이름만,
   스트림릿·판다스·넘파이는 기본 설치라 빼고. 이 앱은 openai 하나면 돼.
-- 초보자용 한국어 주석을 달아. app.py 전체 코드를 한 번에 줘.</pre></div>
+- 초보자용 한국어 주석을 달아. main.py 전체 코드를 한 번에 줘.</pre></div>
 
   <ul><li>아래는 받게 될 코드의 <b>모습</b> 예시입니다. 변수 이름이나 배치가 조금 달라도 대화가 이어지면 됩니다</li></ul>
-  <div class="codewrap code"><span class="label">② AI가 준 코드 예시 (app.py)</span><pre>import streamlit as st
+  <div class="codewrap code"><span class="label">② AI가 준 코드 예시 (main.py)</span><pre>import streamlit as st
 from openai import OpenAI
 
 # 페이지 기본 설정
@@ -166,7 +166,7 @@ openai</pre></div>
   <h2>5. 올리고 배포하기</h2>
   <ol class="steps">
     <li><span class="st">금고에 키 추가</span><br>Streamlit Cloud 앱 → <b>Settings → Secrets</b> → <code>SOLAR_API_KEY</code> 줄을 아래에 붙여넣고 <b>Save</b></li>
-    <li><span class="st">파일 교체</span><br>GitHub 저장소 <code>my-vibe-app</code> → <code>app.py</code> → 연필 아이콘 → 기존 내용 <b>전체 선택 후 삭제</b> → 새 코드 붙여넣기</li>
+    <li><span class="st">파일 교체</span><br>GitHub 저장소 <code>my-vibe-app</code> → <code>main.py</code> → 연필 아이콘 → 기존 내용 <b>전체 선택 후 삭제</b> → 새 코드 붙여넣기</li>
     <li><span class="st">requirements.txt 확인</span><br>같은 저장소의 <code>requirements.txt</code>에 <code>openai</code> 줄이 있는지 확인. 없으면 연필로 한 줄 추가</li>
     <li><span class="st">커밋</span><br>아래 <b>Commit changes</b>. 클라우드가 push를 감지해 알아서 다시 배포합니다. 1~3분 걸립니다</li>
   </ol>
@@ -206,8 +206,8 @@ openai</pre></div>
   <details class="glossary">
     <summary>🧯 프롬프트가 어긋났다면 — 완성 코드 복붙 (말투 고르기·성격 고치기·대화 지우기 포함)</summary>
     <div class="gin">
-      <p>아래 코드를 <code>app.py</code>에 통째로 붙여넣고 커밋하면 같은 결과가 나옵니다. 금고에 <code>SOLAR_API_KEY</code>만 들어 있으면 됩니다.</p>
-      <div class="codewrap code"><span class="label">app.py 전체 (그대로 복사)</span><pre>import streamlit as st
+      <p>아래 코드를 <code>main.py</code>에 통째로 붙여넣고 커밋하면 같은 결과가 나옵니다. 금고에 <code>SOLAR_API_KEY</code>만 들어 있으면 됩니다.</p>
+      <div class="codewrap code"><span class="label">main.py 전체 (그대로 복사)</span><pre>import streamlit as st
 from openai import OpenAI
 
 st.set_page_config(page_title="AI 정보 선생님", page_icon="🤖")
