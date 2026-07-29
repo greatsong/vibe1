@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STEP 1 · 길 뚫기 · 정보교사 바이브 코딩 4시간</title>
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+</head>
+<body>
+<div class="topbar"><div class="inner">
+  <a class="brand" href="index.html"><span class="chick">🚀</span> 정보교사 <span class="a">바이브 코딩</span></a>
+  <span class="spacer"></span>
+  <a class="home" href="index.html">← 목차</a>
+  <span class="badge">선생님용</span>
+</div></div>
+
+<div class="wrap">
+<main>
+  <span class="eyebrow">STEP 1 · 20~80분</span>
+  <h1>길 <span class="a">뚫기</span></h1>
+  <div class="under"></div>
+
+  <div class="make-banner">
+    <div class="t">🎯 이 60분에 만드는 것</div>
+    <ul>
+      <li><b>전국 고령화 지도 앱</b> — 시군구 255곳의 65세 이상 비율을 색으로 칠한 단계구분도</li>
+      <li><b>내 앱 주소</b> — <code>내가정한이름.streamlit.app</code>. 오늘 남은 시간에 계속 씁니다</li>
+    </ul>
+  </div>
+
+  <p>순서는 <b>빈 앱을 먼저 배포하고, 그 위에 지도를 얹는 것</b>입니다. 코드를 다 만든 다음 마지막에 배포하면 어디서 어긋났는지 찾기 어려워요. 계정 연결이 되는지부터 확인하고 넘어갑니다.</p>
+
+  <h2>1. 오늘 쓸 데이터</h2>
+  <p>내려받거나 정리할 것은 없습니다. 아래 두 주소를 프롬프트에 적으면 앱이 인터넷에서 직접 읽어요.</p>
+  <div class="callout tip">
+    <div class="h">📦 파일 두 개</div>
+    <ul>
+      <li><b>인구</b> — <a href="https://raw.githubusercontent.com/greatsong/modudata/main/data/population_yearly.csv.gz" target="_blank" rel="noopener"><code>population_yearly.csv.gz</code></a><br>
+      행정안전부 주민등록 인구. 2015~2026년 · 전국 읍·면·동 4만 2천여 행 · 1세 단위 남녀 인구. 압축 파일이지만 pandas가 그대로 읽습니다</li>
+      <li><b>경계</b> — <a href="https://raw.githubusercontent.com/greatsong/modudata/main/data/boundaries/sigungu_kr.geojson" target="_blank" rel="noopener"><code>sigungu_kr.geojson</code></a><br>
+      전국 시군구 255개의 모양. 지역마다 속성은 <code>코드</code>·<code>시군구</code>·<code>시도</code> 셋</li>
+    </ul>
+  </div>
+  <ul>
+    <li>인구표에는 지역 모양이 없고, 경계 파일에는 인구 숫자가 없어요. 지도 하나를 그리려면 <b>둘을 붙여야</b> 합니다</li>
+    <li>붙이는 기준은 <b>행정동 코드</b>. 인구표 <code>코드</code>의 앞 5자리가 경계 파일의 <code>코드</code>와 같습니다</li>
+  </ul>
+  <div class="callout warn">
+    <div class="h">⚠️ 이름으로 붙이면 어긋납니다</div>
+    <ul>
+      <li><b>남구</b>는 부산·대구·인천·울산·광주에 다 있어요. <b>중구·동구·서구</b>도 마찬가지입니다</li>
+      <li>이름으로 짝지으면 여러 곳이 한 덩어리가 되거나 엉뚱한 지역이 칠해져요. 반드시 <b>코드</b>로 짝지어야 합니다</li>
+      <li>코드는 앞자리가 <code>0</code>인 값이 있어서 숫자로 읽으면 자릿수가 어긋납니다. <b>글자로 읽어야</b> 해요</li>
+      <li>이 두 가지를 프롬프트에 미리 적어 둡니다. AI가 알아서 피해 가지 않는 부분이에요</li>
+    </ul>
+  </div>
+
+  <h2>2. 저장소 만들기</h2>
+  <p>앱 하나에 저장소 하나입니다. 오늘 만드는 앱은 전부 이 저장소 안에서 갈아 끼워요.</p>
+  <ol class="steps">
+    <li><span class="st">새 저장소</span><br><a href="https://github.com/new" target="_blank" rel="noopener"><code>github.com/new</code></a> 접속 (또는 오른쪽 위 <b>＋</b> → <b>New repository</b>)</li>
+    <li><span class="st">이름과 공개 범위</span><br><b>Repository name</b>에 <code>my-vibe-app</code> · <b>Public</b> 선택 · <b>Add a README file</b> 체크 → 초록 <b>Create repository</b></li>
+    <li><span class="st">requirements.txt 만들기</span><br><b>Add file → Create new file</b> → 파일명 <code>requirements.txt</code> → 아래 두 줄 붙여넣기 → 맨 아래 초록 <b>Commit changes</b> → 팝업에서 다시 <b>Commit changes</b></li>
+    <li><span class="st">app.py 만들기</span><br>다시 <b>Add file → Create new file</b> → 파일명 <code>app.py</code> → 아래 네 줄 붙여넣기 → <b>Commit changes</b></li>
+  </ol>
+  <div class="codewrap code"><span class="label">requirements.txt</span><pre>plotly
+requests</pre></div>
+  <div class="codewrap code"><span class="label">app.py — 지금은 이 네 줄만</span><pre>import streamlit as st
+
+st.title("첫 배포 확인 👋")
+st.write("여기까지 보이면 길이 뚫린 거예요.")</pre></div>
+  <div class="callout warn">
+    <div class="h">⚠️ Public이어야 하고, 파일명이 정확해야 합니다</div>
+    <ul>
+      <li>스트림릿 커뮤니티 클라우드는 <b>공개 저장소</b>를 무료로 켭니다. Private으로 만들었다면 저장소 <b>Settings</b> 맨 아래에서 바꿀 수 있어요</li>
+      <li><code>requirements.txt</code>는 철자 하나만 달라도 무시됩니다. <code>requirement.txt</code>·<code>Requirements.txt</code> 모두 안 돼요</li>
+      <li>여기에는 <b>추가로 설치할 것만</b> 적습니다. 스트림릿·판다스·넘파이는 이미 깔려 있어요</li>
+    </ul>
+  </div>
+
+  <h2>3. 먼저 배포부터</h2>
+  <ol class="steps">
+    <li><span class="st">스트림릿 클라우드 열기</span><br><a href="https://share.streamlit.io" target="_blank" rel="noopener"><code>share.streamlit.io</code></a> → <b>Continue with GitHub</b>. 저장소를 만든 <b>그 계정</b>으로 로그인합니다</li>
+    <li><span class="st">앱 만들기 시작</span><br>화면 오른쪽 위 <b>Create app</b> → “Do you already have an app?” 물음에 <b>Yup, I have an app</b></li>
+    <li><span class="st">칸 세 개 채우기</span><br><b>Repository</b>에 <code>내아이디/my-vibe-app</code> · <b>Branch</b>는 <code>main</code> · <b>Main file path</b>에 <code>app.py</code></li>
+    <li><span class="st">주소 정하기</span><br><b>App URL</b> 칸에 원하는 앞부분을 적습니다. 비워 두면 긴 자동 주소가 붙어요. 예: <code>hong-vibe</code> → <code>hong-vibe.streamlit.app</code></li>
+    <li><span class="st">배포</span><br>초록 <b>Deploy</b> → 로그가 흐르는 화면으로 넘어갑니다. 로그를 읽을 필요는 없어요</li>
+    <li><span class="st">주소 메모</span><br>앱이 뜨면 주소창의 <code>~.streamlit.app</code>을 <b>어딘가에 적어 둡니다.</b> 오늘 끝까지 쓰는 주소입니다</li>
+  </ol>
+  <div class="callout tip">
+    <div class="h">⏳ 빌드에 1~3분</div>
+    <p>클라우드가 파이썬 환경을 새로 만들고 <code>requirements.txt</code>의 라이브러리를 설치하는 시간입니다. 기다리는 동안 아래 <b>4절 프롬프트</b>를 먼저 읽어 두세요.</p>
+  </div>
+  <div class="callout warn">
+    <div class="h">⚠️ 화면 구성은 조금씩 바뀔 수 있어요</div>
+    <ul>
+      <li>버튼 이름이나 배치가 위 설명과 다르면, 화면을 캡처해서 AI에게 “여기서 깃허브 저장소를 어떻게 배포하나요”라고 물어보세요</li>
+      <li>채워야 할 것은 셋입니다. <b>저장소 이름 · 브랜치 · 실행할 파일 이름</b></li>
+    </ul>
+  </div>
+  <div class="callout check">
+    <div class="h">✔️ 여기까지 성공 확인</div>
+    <ul>
+      <li>“첫 배포 확인 👋”이 큰 글씨로 뜨면 됩니다. 화면이 거의 비어 있는 게 정상이에요</li>
+      <li>휴대폰으로도 같은 주소를 열어 보세요. 인터넷에 올라간 앱이라 어디서든 열립니다</li>
+      <li>빨간 에러 화면이 뜨면 메시지를 통째로 복사해 AI에게 붙여넣으세요. 대부분 파일명 오타입니다</li>
+    </ul>
+  </div>
+
+  <h2>4. 지도 앱 주문하기</h2>
+  <p>1절에서 확인한 것을 그대로 주문서에 옮깁니다. <b>열 이름 · 코드 자릿수 · 짝짓는 방법</b>을 적어 두면 AI가 필드 이름을 지어내지 않아요.</p>
+  <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>전국 고령화 지도를 보여 주는 스트림릿 앱 하나(app.py)를 만들어 줘. 스트림릿 클라우드에 올릴 거야.
+시군구별 65세 이상 인구 비율을 색으로 칠한 단계구분도야.
+
+■ 인구 데이터
+- 주소: https://raw.githubusercontent.com/greatsong/modudata/main/data/population_yearly.csv.gz
+- pandas로 이 주소를 그대로 읽으면 돼. 압축 파일이지만 알아서 풀려.
+- 2015~2026년 전국 읍·면·동 인구야. 가장 최신 연도만 골라 써 줘.
+- 열은 연도 · 시도 · 시군구 · 동 · 코드, 그리고 나이별 인구 열이야.
+- 나이별 열 이름은 '계_0세', '남_0세', '여_0세' 형식으로 나이마다 셋씩 있고 '계_100세 이상'까지 이어져.
+- '코드'는 행정동 코드 열 자리인데 앞자리가 0인 값이 있어. 반드시 글자로 읽어. 숫자로 읽으면 앞의 0이 날아가.
+
+■ 지도 경계 데이터
+- 주소: https://raw.githubusercontent.com/greatsong/modudata/main/data/boundaries/sigungu_kr.geojson
+- 전국 시군구 255개의 경계가 들어 있는 GeoJSON이야. 인터넷에서 내려받아 JSON으로 읽어 줘.
+- 지역마다 속성이 세 개야: '코드'(5자리) · '시군구' · '시도'.
+
+■ 계산
+- 65세 이상 인구 = '계_65세'부터 '계_100세 이상'까지 열의 합.
+- 전체 인구 = '계_'로 시작하는 모든 열의 합. '남_'과 '여_' 열은 더하지 마. 같은 사람을 두 번 세게 돼.
+- 인구 데이터는 읍·면·동 단위니까 '코드' 앞 5자리로 묶어 시군구 단위로 합쳐 줘.
+- 고령화율 = 65세 이상 인구 ÷ 전체 인구 × 100, 소수 둘째 자리까지.
+
+■ 지도
+- plotly 단계구분도로 그려 줘. 배경 지도 타일 없이 경계선만.
+- 지역은 이름이 아니라 '코드'로 맞춰 줘. 경계 파일의 '코드' 속성과 짝지어 칠하고, 코드는 글자로 다뤄.
+  이름으로 맞추면 '남구'처럼 여러 시도에 같은 이름이 있어서 어긋나.
+- 색은 이어지는 그라데이션 말고 5단계로 끊어 줘. 구간 경계값은 19% · 23% · 28% · 38%.
+  전국 시군구를 다섯 덩어리로 나눈 실제 값이야. 낮은 쪽은 옅은 살구색, 높은 쪽은 진한 주황.
+- 범례에 각 단계의 비율 구간이 글자로 보이게. 예: '19% 미만', '38% 이상'.
+- 마우스를 올리면 시군구 이름 · 시도 · 고령화율(%)이 보이게.
+- 지도 아래에 고령화율 높은 곳 10개와 낮은 곳 10개를 표 두 개로 나란히 보여 줘.
+
+■ 규칙
+- 인구 파일과 경계 파일은 한 번만 내려받고 다시 쓰도록 캐시를 걸어 줘. 매번 새로 받으면 화면이 느려져.
+- 한국어 라벨, 초보자용 한국어 주석.
+- 필요한 라이브러리 목록(requirements.txt)도 같이 줘.
+  버전 숫자 없이 이름만, 스트림릿·판다스·넘파이는 기본 설치라 빼고.
+- app.py 전체 코드를 한 번에 줘.</pre></div>
+
+  <h2>5. 돌아온 코드</h2>
+  <p>완성된 코드 한 덩어리가 옵니다. 내 것과 글자까지 같지 않아도 돼요. 이런 <b>모습</b>이면 성공입니다.</p>
+  <div class="codewrap code"><span class="label">② AI가 준 코드 예시</span><pre>import re
+import requests
+import pandas as pd
+import streamlit as st
+import plotly.express as px
+
+st.set_page_config(page_title="전국 고령화 지도", layout="wide")
+st.title("🗺️ 전국 고령화 지도")
+st.caption("시군구별 65세 이상 인구 비율 (행정안전부 주민등록 인구)")
+
+POP_URL = "https://raw.githubusercontent.com/greatsong/modudata/main/data/population_yearly.csv.gz"
+GEO_URL = "https://raw.githubusercontent.com/greatsong/modudata/main/data/boundaries/sigungu_kr.geojson"
+
+
+@st.cache_data(show_spinner="인구 데이터를 불러오는 중이에요...")
+def load_population():
+    # '코드' 열은 앞자리 0이 사라지지 않게 글자로 읽어요
+    return pd.read_csv(POP_URL, dtype={"코드": str})
+
+
+@st.cache_data(show_spinner="지도 경계를 불러오는 중이에요...")
+def load_geojson():
+    return requests.get(GEO_URL, timeout=30).json()
+
+
+df = load_population()
+geojson = load_geojson()
+
+# 1. 가장 최신 연도만 사용
+latest_year = int(df["연도"].max())
+df = df[df["연도"] == latest_year].copy()
+
+# 2. '계_'로 시작하는 나이 열만 (남_·여_ 열까지 더하면 두 배가 돼요)
+total_cols = [c for c in df.columns if c.startswith("계_")]
+
+
+def age_of(col):
+    m = re.match(r"계_(\d+)세", col)
+    return int(m.group(1)) if m else None
+
+
+# 3. 그중 65세 이상 열만 ('계_65세' ~ '계_100세 이상')
+elderly_cols = [c for c in total_cols if age_of(c) is not None and age_of(c) &gt;= 65]
+
+# 4. 동 단위로 전체 인구·고령 인구 계산
+df["전체인구"] = df[total_cols].sum(axis=1)
+df["고령인구"] = df[elderly_cols].sum(axis=1)
+
+# 5. '코드' 앞 5자리 = 시군구 코드 → 시군구별로 묶어 비율 계산
+df["시군구코드"] = df["코드"].str[:5]
+grouped = df.groupby("시군구코드")[["전체인구", "고령인구"]].sum().reset_index()
+grouped["고령화율"] = (grouped["고령인구"] / grouped["전체인구"] * 100).round(2)
+
+# 경계 파일에서 코드 → 시군구·시도 이름 짝 만들기
+names = pd.DataFrame([
+    {
+        "시군구코드": str(f["properties"]["코드"]),
+        "시군구": f["properties"]["시군구"],
+        "시도": f["properties"]["시도"],
+    }
+    for f in geojson["features"]
+])
+merged = grouped.merge(names, on="시군구코드", how="left")
+
+# 6. 5단계 색 구간 (전국 시군구를 다섯 덩어리로 나눈 실제 경계값)
+BINS = [0, 19, 23, 28, 38, 100]
+LABELS = ["19% 미만", "19~23%", "23~28%", "28~38%", "38% 이상"]
+COLORS = {
+    "19% 미만": "#fee6ce",
+    "19~23%": "#fdc086",
+    "23~28%": "#f79646",
+    "28~38%": "#e8590c",
+    "38% 이상": "#a63603",
+}
+merged["단계"] = pd.cut(merged["고령화율"], bins=BINS, labels=LABELS, right=False)
+
+# 7. 단계구분도 그리기 (배경 지도 타일 없이 경계만)
+fig = px.choropleth(
+    merged,
+    geojson=geojson,
+    locations="시군구코드",
+    featureidkey="properties.코드",
+    color="단계",
+    category_orders={"단계": LABELS},
+    color_discrete_map=COLORS,
+    hover_name="시군구",
+    hover_data={"고령화율": True, "시도": True, "시군구코드": False, "단계": False},
+    labels={"고령화율": "65세 이상 비율(%)"},
+)
+fig.update_geos(fitbounds="locations", visible=False)
+fig.update_layout(
+    margin=dict(l=0, r=0, t=10, b=0),
+    height=700,
+    legend_title_text=f"65세 이상 비율 ({latest_year}년)",
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# 8. 지도 아래 순위 표 두 개
+c1, c2 = st.columns(2)
+cols = ["시도", "시군구", "고령화율"]
+with c1:
+    st.subheader("🔴 고령화율 높은 곳 10")
+    st.dataframe(merged.nlargest(10, "고령화율")[cols].reset_index(drop=True))
+with c2:
+    st.subheader("🟢 고령화율 낮은 곳 10")
+    st.dataframe(merged.nsmallest(10, "고령화율")[cols].reset_index(drop=True))</pre></div>
+  <div class="codewrap code"><span class="label">requirements.txt — 2절에서 만든 그대로, 고칠 것 없음</span><pre>plotly
+requests</pre></div>
+
+  <h2>6. 앱 갈아 끼우기</h2>
+  <p>저장소도 앱 주소도 그대로 두고 <code>app.py</code>의 내용만 바꿉니다.</p>
+  <ol class="steps">
+    <li><span class="st">파일 열기</span><br>GitHub 저장소 <code>my-vibe-app</code> → <code>app.py</code> 클릭 → 오른쪽 위 <b>연필 아이콘</b>(Edit this file)</li>
+    <li><span class="st">내용 교체</span><br>기존 네 줄을 <b>전체 선택 후 삭제</b> → 받은 코드 붙여넣기</li>
+    <li><span class="st">저장</span><br>맨 아래 초록 <b>Commit changes</b> → 팝업에서 다시 <b>Commit changes</b></li>
+    <li><span class="st">앱 새로고침</span><br>메모해 둔 <code>~.streamlit.app</code> 주소로 가서 새로고침</li>
+  </ol>
+  <div class="callout tip">
+    <div class="h">💡 커밋하면 알아서 다시 배포됩니다</div>
+    <ul>
+      <li>배포 화면을 다시 열 필요가 없어요. 저장소 파일이 바뀌면 클라우드가 알아채고 새로 켭니다</li>
+      <li>지도가 처음 뜰 때 몇 초 걸려요. 인구 파일 14MB를 내려받고 경계 255개를 그리는 시간입니다. 두 번째부터는 캐시 덕분에 빨라집니다</li>
+      <li>화면이 그대로면 오른쪽 아래 <b>Manage app</b>을 눌러 빌드가 아직 도는지 확인하세요. 그래도 안 되면 같은 메뉴의 <b>Reboot app</b></li>
+    </ul>
+  </div>
+  <div class="callout check">
+    <div class="h">✔️ 지도가 이렇게 나오면 성공</div>
+    <ul>
+      <li>한반도 모양이 <b>시군구 255개로 쪼개져</b> 색이 칠해집니다. 배경 지도 없이 경계선만 있는 화면이에요</li>
+      <li>오른쪽 범례가 <b>5칸</b>입니다. <code>19% 미만</code> · <code>19~23%</code> · <code>23~28%</code> · <code>28~38%</code> · <code>38% 이상</code></li>
+      <li>경상북도·전라남도 내륙이 가장 진하고, 수도권 신도시와 세종이 가장 옅게 나옵니다</li>
+      <li>아래 표에서 확인할 값 — 가장 높은 곳 <b>의성군 50.11%</b>, 가장 낮은 곳 <b>화성시동탄구 7.09%</b> (2026년 기준)</li>
+      <li>지도가 회색 한 덩어리이거나 텅 비었다면 <b>이름으로 짝지은 경우</b>입니다. “지역은 이름이 아니라 코드로 맞춰 줘”를 다시 보내세요</li>
+    </ul>
+  </div>
+
+  <h2>7. 대화로 이어서 고치기</h2>
+  <p>지도가 떴으면 아래 넷 중 마음에 드는 것부터 하나씩 보냅니다. 한 번에 다 보내지 말고 하나씩 확인하면서 가는 편이 빨라요.</p>
+  <div class="codewrap improve"><span class="label">③ 프롬프트 개선</span><pre>좋아, 여기서 이어서 고쳐 줘. app.py 전체 코드를 다시 한 번에 줘.
+- 연도를 슬라이더로 고를 수 있게 해 줘. 2015년부터 2026년까지, 옮기면 지도 색이 그 해 기준으로 바뀌게.
+  색 구간 경계값(19 · 23 · 28 · 38%)은 연도가 바뀌어도 그대로 둬. 그래야 해마다 색을 비교할 수 있어.
+- 지도 위에 지표 카드 세 장을 나란히: 전국 고령화율, 가장 높은 시군구, 가장 낮은 시군구.
+- 시도를 고르면 그 시도만 확대해 보여 주는 드롭다운을 달아 줘. '전국'도 고를 수 있게.
+- 65세 이상 말고 0~14세 비율(유소년)도 볼 수 있게 지표 선택 상자를 달아 줘.
+  지표를 바꾸면 지도 색·범례·아래 표가 함께 바뀌고, 색 구간도 그 지표에 맞게 다시 나눠 줘.</pre></div>
+
+  <details class="glossary">
+    <summary>🧯 시간이 부족하거나 프롬프트가 어긋났다면 — 완성 코드 복붙</summary>
+    <div class="gin">
+      <p>아래를 <code>app.py</code>에 통째로 붙여넣고 커밋하면 위 화면이 그대로 나옵니다. 먼저 진도를 맞추고, 프롬프트는 쉬는 시간에 다시 돌려 보셔도 됩니다.</p>
+      <div class="codewrap code"><span class="label">app.py 전체 (그대로 복사)</span><pre>import re
+import requests
+import pandas as pd
+import streamlit as st
+import plotly.express as px
+
+st.set_page_config(page_title="전국 고령화 지도", layout="wide")
+st.title("🗺️ 전국 고령화 지도")
+st.caption("시군구별 65세 이상 인구 비율 (행정안전부 주민등록 인구)")
+
+POP_URL = "https://raw.githubusercontent.com/greatsong/modudata/main/data/population_yearly.csv.gz"
+GEO_URL = "https://raw.githubusercontent.com/greatsong/modudata/main/data/boundaries/sigungu_kr.geojson"
+
+
+@st.cache_data(show_spinner="인구 데이터를 불러오는 중이에요...")
+def load_population():
+    return pd.read_csv(POP_URL, dtype={"코드": str})
+
+
+@st.cache_data(show_spinner="지도 경계를 불러오는 중이에요...")
+def load_geojson():
+    return requests.get(GEO_URL, timeout=30).json()
+
+
+df = load_population()
+geojson = load_geojson()
+
+latest_year = int(df["연도"].max())
+df = df[df["연도"] == latest_year].copy()
+
+total_cols = [c for c in df.columns if c.startswith("계_")]
+
+
+def age_of(col):
+    m = re.match(r"계_(\d+)세", col)
+    return int(m.group(1)) if m else None
+
+
+elderly_cols = [c for c in total_cols if age_of(c) is not None and age_of(c) &gt;= 65]
+
+df["전체인구"] = df[total_cols].sum(axis=1)
+df["고령인구"] = df[elderly_cols].sum(axis=1)
+
+df["시군구코드"] = df["코드"].str[:5]
+grouped = df.groupby("시군구코드")[["전체인구", "고령인구"]].sum().reset_index()
+grouped["고령화율"] = (grouped["고령인구"] / grouped["전체인구"] * 100).round(2)
+
+names = pd.DataFrame([
+    {
+        "시군구코드": str(f["properties"]["코드"]),
+        "시군구": f["properties"]["시군구"],
+        "시도": f["properties"]["시도"],
+    }
+    for f in geojson["features"]
+])
+merged = grouped.merge(names, on="시군구코드", how="left")
+
+BINS = [0, 19, 23, 28, 38, 100]
+LABELS = ["19% 미만", "19~23%", "23~28%", "28~38%", "38% 이상"]
+COLORS = {
+    "19% 미만": "#fee6ce",
+    "19~23%": "#fdc086",
+    "23~28%": "#f79646",
+    "28~38%": "#e8590c",
+    "38% 이상": "#a63603",
+}
+merged["단계"] = pd.cut(merged["고령화율"], bins=BINS, labels=LABELS, right=False)
+
+fig = px.choropleth(
+    merged,
+    geojson=geojson,
+    locations="시군구코드",
+    featureidkey="properties.코드",
+    color="단계",
+    category_orders={"단계": LABELS},
+    color_discrete_map=COLORS,
+    hover_name="시군구",
+    hover_data={"고령화율": True, "시도": True, "시군구코드": False, "단계": False},
+    labels={"고령화율": "65세 이상 비율(%)"},
+)
+fig.update_geos(fitbounds="locations", visible=False)
+fig.update_layout(
+    margin=dict(l=0, r=0, t=10, b=0),
+    height=700,
+    legend_title_text=f"65세 이상 비율 ({latest_year}년)",
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+c1, c2 = st.columns(2)
+cols = ["시도", "시군구", "고령화율"]
+with c1:
+    st.subheader("🔴 고령화율 높은 곳 10")
+    st.dataframe(merged.nlargest(10, "고령화율")[cols].reset_index(drop=True))
+with c2:
+    st.subheader("🟢 고령화율 낮은 곳 10")
+    st.dataframe(merged.nsmallest(10, "고령화율")[cols].reset_index(drop=True))</pre></div>
+    </div>
+  </details>
+
+  <details class="glossary">
+    <summary>📖 이 페이지의 새 용어</summary>
+    <div class="gin">
+      <table class="glossary-table">
+        <thead><tr><th>용어</th><th>뜻</th></tr></thead>
+        <tbody>
+          <tr><td class="term">저장소(repository)</td><td>깃허브에서 프로젝트 파일을 담는 방. 오늘은 <code>my-vibe-app</code> 하나만 씀</td></tr>
+          <tr><td class="term">커밋(commit)</td><td>“이 상태로 저장” 도장. 커밋하면 클라우드가 앱을 다시 배포함</td></tr>
+          <tr><td class="term">브랜치(branch)</td><td>저장소 안의 작업 갈래. 오늘은 기본값 <code>main</code> 하나만 씀</td></tr>
+          <tr><td class="term">requirements.txt</td><td>추가로 설치할 라이브러리 목록. 스트림릿·판다스·넘파이는 기본 설치라 적지 않음</td></tr>
+          <tr><td class="term">스트림릿(Streamlit)</td><td>파이썬 코드를 버튼·슬라이더가 있는 웹앱으로 켜 주는 라이브러리</td></tr>
+          <tr><td class="term">단계구분도(choropleth)</td><td>값의 크기를 지역 색의 진하기로 나타낸 지도</td></tr>
+          <tr><td class="term">GeoJSON</td><td>지역의 모양(경계 좌표)을 담은 JSON 파일 형식</td></tr>
+          <tr><td class="term">행정동 코드</td><td>행정구역마다 붙은 번호. 열 자리 중 앞 5자리가 시군구를 가리킴</td></tr>
+          <tr><td class="term">캐시(cache)</td><td>한 번 받은 데이터를 기억해 두고 다시 쓰는 것. 두 번째 실행부터 빨라짐</td></tr>
+        </tbody>
+      </table>
+      <p class="glossary-more"><a href="glossary.html">📚 전체 용어사전 보기 →</a></p>
+    </div>
+  </details>
+
+  <div class="pager">
+    <a class="prev" href="prep.html"><div class="dir">← 이전</div><div class="tt">준비 · 계정 3개</div></a>
+    <a class="next" href="step2.html"><div class="dir">다음 →</div><div class="tt">STEP 2 · 키를 다루다</div></a>
+  </div>
+</main>
+</div>
+
+<footer class="foot">2026 정보교사 1급 정교사 자격연수 · 데이터 바이브 코딩 · 선생님용 교재</footer>
+<script src="assets/copy.js"></script>
+</body>
+</html>
