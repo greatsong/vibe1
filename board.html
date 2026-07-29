@@ -59,11 +59,11 @@
   #qr .u{font-size:.72rem;color:var(--muted);word-break:break-all;max-width:176px;}
   /* 오신 분들 통계 */
   #stats{position:absolute;left:18px;bottom:16px;background:rgba(255,255,255,.85);border:1px solid var(--border);
-    border-radius:16px;padding:12px 14px;backdrop-filter:blur(6px);box-shadow:0 6px 20px var(--shadow);width:240px;z-index:4;}
+    border-radius:16px;padding:12px 14px;backdrop-filter:blur(6px);box-shadow:0 6px 20px var(--shadow);width:268px;z-index:4;}
   #stats .sT{font-size:.72rem;font-weight:800;color:var(--muted);margin:0 0 5px;}
   #stats .sT.two{margin-top:12px;}
   .bar2{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:.74rem;}
-  .bar2 .bn{width:78px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar2 .bn{width:96px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .bar2 .bt{flex:1;height:9px;background:rgba(0,0,0,.07);border-radius:99px;overflow:hidden;}
   .bar2 .bf{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:99px;transition:width .4s;min-width:3px;}
   .bar2 .bc{width:16px;text-align:right;font-weight:800;color:var(--accent);}
@@ -110,6 +110,8 @@
     <div id="stats">
       <div class="sT">🎨 바이브 코딩 경험</div><div id="vibeBars"><div class="none2">집계 중…</div></div>
       <div class="sT two">🎖 교육경력</div><div id="careerBars"><div class="none2">집계 중…</div></div>
+      <div class="sT two">💪 자신 있는 분야 TOP 5</div><div id="confBars"><div class="none2">집계 중…</div></div>
+      <div class="sT two">😅 자신 없는 분야 TOP 5</div><div id="unconfBars"><div class="none2">집계 중…</div></div>
       <div class="sHint" id="sHint"></div>
     </div>
     <a id="hubLink" href="index.html">📘 교재 열기<span class="u" id="hubUrl"></span></a>
@@ -168,7 +170,22 @@ let DIST = [];   // 시군구 [{n,p:[[ring...]],bbox,count}]
 let NAT = null, VIEW = null;
 const PINS = [], pinByName = {};   // 학교명 → 핀(인원수 갱신용)
 let count=0, cE=0,cM=0,cH=0;
-let VIBE={}, CAREER={}, tallySig='';
+let VIBE={}, CAREER={}, CONF={}, UNCONF={}, tallySig='';
+// 분야 이름이 길어서 보드에서는 짧은 표기로 보여 준다
+const FIELD_SHORT = {
+  '알고리즘·프로그래밍':'프로그래밍', '데이터 분석·데이터 과학':'데이터 과학',
+  '인공지능·머신러닝 원리':'AI·ML 원리', '생성형 AI 활용·AI 코드 검증':'생성형 AI 활용',
+  '컴퓨팅 시스템·네트워크':'시스템·네트워크', '정보보호·사이버보안':'사이버보안',
+  '물리컴퓨팅':'물리컴퓨팅', '웹·앱 개발과 배포':'웹·앱 개발',
+  '디지털 문화·윤리':'디지털 문화·윤리', '교과 융합 수업 설계':'교과 융합',
+  '수행평가·과정 중심 평가':'평가 설계',
+};
+function top5(obj){
+  return Object.keys(obj).filter(k=>obj[k])
+    .sort((a,b)=>obj[b]-obj[a])
+    .slice(0,5)
+    .map(k=>[FIELD_SHORT[k]||k, obj[k]]);
+}
 const VIBE_ORDER=['처음이에요','조금 써봤어요','자주 씁니다'];
 const CAREER_ORDER=['1년 미만','1~5년','6~10년','11~15년','16~20년','21~25년','26년 이상'];
 const tq=[]; let tActive=false;   // 도착 알림 큐(동시 도착 안 묻히게)
@@ -295,6 +312,8 @@ function renderStats(){
   const f = statsExpanded ? drawBars : drawChips;
   f(document.getElementById('vibeBars'), ordered(VIBE_ORDER, VIBE));
   f(document.getElementById('careerBars'), ordered(CAREER_ORDER, CAREER));
+  f(document.getElementById('confBars'), top5(CONF));
+  f(document.getElementById('unconfBars'), top5(UNCONF));
   document.getElementById('sHint').textContent = statsExpanded ? '(클릭: 숫자로 접기)' : '(클릭: 그래프로 보기)';
 }
 document.getElementById('stats').addEventListener('click', ()=>{ statsExpanded=!statsExpanded; renderStats(); });
@@ -362,6 +381,7 @@ async function poll(){
       if(sig !== tallySig){
         tallySig = sig;
         VIBE = d.tally.vibe || {}; CAREER = d.tally.career || {};
+        CONF = d.tally.confident || {}; UNCONF = d.tally.unconfident || {};
         renderStats();
       }
     }
