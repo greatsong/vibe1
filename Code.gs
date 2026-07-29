@@ -9,14 +9,14 @@
  *  4) 나온 웹 앱 URL을 map.html과 board.html의 API_URL에 각각 넣는다
  ***************************************************************************/
 
-const SHEET_NAME = 'map2';
+const SHEET_NAME = 'map3';
 
 function getSheet_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
-    sh.appendRow(['시각', '학교', '지역', '위도', '경도', '바이브경험', '교육경력']);
+    sh.appendRow(['시각', '학교', '지역', '위도', '경도', '바이브경험', '교육경력', '자신분야', '비자신분야']);
   }
   return sh;
 }
@@ -27,7 +27,7 @@ function doPost(e) {
   lock.waitLock(30000);
   try {
     const d = JSON.parse(e.postData.contents);
-    getSheet_().appendRow([new Date(), d.school || '', d.region || '', d.lat, d.lon, d.vibe || '', d.career || '']);
+    getSheet_().appendRow([new Date(), d.school || '', d.region || '', d.lat, d.lon, d.vibe || '', d.career || '', d.confident || '', d.unconfident || '']);
     return out_({ ok: true });
   } catch (err) {
     return out_({ ok: false, error: String(err) });
@@ -42,21 +42,31 @@ function doGet(e) {
   const sh = getSheet_();
   const schools = [];
   const index = {};
-  const tally = { vibe: {}, career: {} };
+  const tally = { vibe: {}, career: {}, confident: {}, unconfident: {} };
   if (sh.getLastRow() > 1) {
-    const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 7).getValues();
+    const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 9).getValues();
     rows.forEach(function (r) {
       const name = String(r[1]);
       if (!name) return;
       const vibe = String(r[5]), career = String(r[6]);
       if (vibe) tally.vibe[vibe] = (tally.vibe[vibe] || 0) + 1;
       if (career) tally.career[career] = (tally.career[career] || 0) + 1;
+      addSplit_(tally.confident, r[7]);
+      addSplit_(tally.unconfident, r[8]);
       if (name in index) { schools[index[name]].count++; return; }
       index[name] = schools.length;
       schools.push({ school: name, region: String(r[2]), lat: r[3], lon: r[4], vibe: vibe, career: career, count: 1 });
     });
   }
   return out_({ ok: true, schools: schools, tally: tally });
+}
+
+// '분야1, 분야2' 형태 문자열을 분야별 인원수로 집계
+function addSplit_(map, v) {
+  String(v || '').split(',').forEach(function (s) {
+    s = s.trim();
+    if (s) map[s] = (map[s] || 0) + 1;
+  });
 }
 
 function out_(obj) {

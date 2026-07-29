@@ -39,6 +39,13 @@
     font-family:inherit;font-size:.9rem;font-weight:800;padding:.75rem .3rem;cursor:pointer;line-height:1.35;}
   .opt .ic{display:block;font-size:1.25rem;margin-bottom:3px;}
   .opt.on{border-color:var(--accent);background:var(--card);color:var(--accent);box-shadow:0 4px 12px var(--shadow);}
+  /* 전문성 분야: 항목별 자신/아직 */
+  .skillrow{display:flex;align-items:center;gap:6px;margin:6px 0;}
+  .skillrow .nm{flex:1;text-align:left;font-size:.86rem;font-weight:700;line-height:1.3;}
+  .skillrow .sb{border:1.5px solid var(--border);border-radius:10px;background:#fff;color:var(--muted);
+    font-family:inherit;font-size:.78rem;font-weight:800;padding:.5rem .5rem;cursor:pointer;white-space:nowrap;}
+  .skillrow .sb.on-c{border-color:#2E7D32;background:#EAF6EB;color:#2E7D32;}
+  .skillrow .sb.on-u{border-color:var(--accent);background:var(--card);color:var(--accent);}
   .go{width:100%;margin-top:18px;border:none;border-radius:14px;padding:.95rem;font-size:1.08rem;
     font-weight:800;color:#fff;background:var(--accent);cursor:pointer;font-family:inherit;box-shadow:0 6px 18px var(--shadow);}
   .go:active{transform:scale(.98);}
@@ -101,6 +108,8 @@
         <option>1년 미만</option><option>1~5년</option><option>6~10년</option>
         <option>11~15년</option><option>16~20년</option><option>21~25년</option><option>26년 이상</option>
       </select>
+      <label>전문성 — 분야마다 해당하는 쪽을 눌러 주세요 <span style="font-weight:600">(선택)</span></label>
+      <div id="skillList"></div>
       <button class="go" id="submitBtn">지도에 올리기 🚀</button>
     </div>
   </div>
@@ -129,7 +138,7 @@
 <script>
 /* 강사 준비: ① 새 구글 스프레드시트 만들기 → ② 확장 프로그램 · Apps Script에 Code.gs 붙여넣기
    → ③ 배포 · 새 배포 · 웹 앱(액세스: 모든 사용자) → ④ 나온 URL을 여기와 board.html 양쪽에 넣기 */
-const API_URL = "여기에_새_Apps_Script_웹앱_URL을_넣으세요";
+const API_URL = "https://script.google.com/macros/s/AKfycbyuIJJAL9WIKazAA2_kPq_aUFg-1ZdH63PIsl1S_B6jjSAXy9qwIs9iX5XXm3W6n7nHwA/exec";
 
 let SCHOOLS = [], chosen = null, vibe = '';
 const $ = id => document.getElementById(id);
@@ -174,12 +183,45 @@ vibeBtns.forEach(b=>{
   };
 });
 
+// 전문성 분야: 항목마다 '자신 있음'과 '자신 없음' 중 하나만 켜진다
+const FIELDS = [
+  '알고리즘·프로그래밍', '데이터 분석·데이터 과학', '인공지능·머신러닝 원리',
+  '생성형 AI 활용·AI 코드 검증', '컴퓨팅 시스템·네트워크', '정보보호·사이버보안',
+  '물리컴퓨팅', '웹·앱 개발과 배포', '디지털 문화·윤리',
+  '교과 융합 수업 설계', '수행평가·과정 중심 평가',
+];
+const skillState = {};
+function paintSkills(){
+  document.querySelectorAll('#skillList .skillrow').forEach(r=>{
+    r._bc.classList.toggle('on-c', skillState[r._f]==='c');
+    r._bu.classList.toggle('on-u', skillState[r._f]==='u');
+  });
+}
+(function(){
+  const box = $('skillList');
+  FIELDS.forEach(f=>{
+    const row = document.createElement('div'); row.className='skillrow';
+    const nm = document.createElement('div'); nm.className='nm'; nm.textContent=f;
+    const bc = document.createElement('button'); bc.type='button'; bc.className='sb'; bc.textContent='💪 자신';
+    const bu = document.createElement('button'); bu.type='button'; bu.className='sb'; bu.textContent='😅 아직';
+    bc.onclick = ()=>{ skillState[f] = (skillState[f]==='c') ? null : 'c'; paintSkills(); };
+    bu.onclick = ()=>{ skillState[f] = (skillState[f]==='u') ? null : 'u'; paintSkills(); };
+    row._f=f; row._bc=bc; row._bu=bu;
+    row.appendChild(nm); row.appendChild(bc); row.appendChild(bu);
+    box.appendChild(row);
+  });
+})();
+
 $('submitBtn').onclick = async ()=>{
   if(!chosen) return;
   const career = $('career').value;
   const btn = $('submitBtn'), orig = btn.textContent;
   btn.disabled = true; btn.textContent = '지도에 올리는 중… ⏳';   // 로딩 안내(전송에 1~2초 걸림)
-  const payload = { school:chosen[0], region:chosen[1], lat:chosen[2], lon:chosen[3], vibe, career };
+  const payload = {
+    school:chosen[0], region:chosen[1], lat:chosen[2], lon:chosen[3], vibe, career,
+    confident:   FIELDS.filter(f=>skillState[f]==='c').join(', '),
+    unconfident: FIELDS.filter(f=>skillState[f]==='u').join(', '),
+  };
   if(API_URL.indexOf('http') === 0){
     try{ await fetch(API_URL, { method:'POST', body: JSON.stringify(payload) }); }catch(e){}
   }
@@ -205,7 +247,9 @@ $('again').onclick = ()=>{
   $('form').style.display='none'; $('search').style.display='block';
   $('q').value=''; $('list').innerHTML='';
   vibeBtns.forEach(x=>x.classList.remove('on'));
-  $('career').value=''; $('q').focus();
+  $('career').value='';
+  FIELDS.forEach(f=>{ delete skillState[f]; }); paintSkills();
+  $('q').focus();
 };
 </script>
 </body>
