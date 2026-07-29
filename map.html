@@ -45,8 +45,15 @@
   .skillrow .sb{width:30px;height:30px;flex-shrink:0;border:1.5px solid var(--border);border-radius:9px;
     background:#fff;color:var(--muted);font-family:inherit;font-size:.82rem;font-weight:800;
     padding:0;cursor:pointer;line-height:1;}
+  .skillrow .sb.fill{border-color:var(--accent);color:#7C4A00;}
   .skillrow .sb.on{border-color:var(--accent);background:var(--accent);color:#fff;box-shadow:0 3px 9px var(--shadow);}
   .skill-legend{text-align:left;font-size:.74rem;color:var(--muted);font-weight:700;margin:2px 2px 6px;}
+  /* 버튼 열과 정렬된 방향 안내: 자신 없음 → 자신 있음 */
+  .skillhead{display:flex;align-items:center;gap:5px;margin:10px 0 2px;}
+  .skillhead .pad{flex:1;}
+  .skillhead .sh{width:170px;display:flex;align-items:center;gap:6px;}
+  .skillhead .sh em{font-style:normal;font-size:.68rem;font-weight:800;color:var(--muted);white-space:nowrap;}
+  .skillhead .sh i{flex:1;height:4px;border-radius:99px;background:linear-gradient(90deg,#EBDDBC,var(--accent));}
   .go{width:100%;margin-top:18px;border:none;border-radius:14px;padding:.95rem;font-size:1.08rem;
     font-weight:800;color:#fff;background:var(--accent);cursor:pointer;font-family:inherit;box-shadow:0 6px 18px var(--shadow);}
   .go:active{transform:scale(.98);}
@@ -109,9 +116,9 @@
         <option>1년 미만</option><option>1~5년</option><option>6~10년</option>
         <option>11~15년</option><option>16~20년</option><option>21~25년</option><option>26년 이상</option>
       </select>
-      <label>전문성 — 분야마다 자신감을 1~5로 눌러 주세요 <span style="font-weight:600">(선택)</span></label>
-      <div class="skill-legend">1 전혀 자신 없음 · 3 보통 · 5 매우 자신 있음</div>
+      <label>전문성 — 분야마다 자신감만큼 눌러 주세요 <span style="font-weight:600">(선택)</span></label>
       <div class="skill-legend">분야 구성 참고: 2022 개정 교육과정 정보과 · <a href="https://greatsong.github.io/whitehouse-science-education-report/csta-2026-standards.html" target="_blank" rel="noopener" style="color:var(--accent);font-weight:800">CSTA 2026 표준</a> · <a href="https://greatsong.github.io/whitehouse-science-education-report/" target="_blank" rel="noopener" style="color:var(--accent);font-weight:800">과학교육 보고서</a></div>
+      <div class="skillhead"><span class="pad"></span><span class="sh"><em>자신 없음</em><i></i><em>자신 있음</em></span></div>
       <div id="skillList"></div>
       <button class="go" id="submitBtn">지도에 올리기 🚀</button>
     </div>
@@ -198,7 +205,13 @@ const FIELDS = [
 const skillState = {};
 function paintSkills(){
   document.querySelectorAll('#skillList .skillrow').forEach(r=>{
-    r._btns.forEach((b,i)=>b.classList.toggle('on', skillState[r._f]===i+1));
+    const v = skillState[r._f] || 0;
+    r._btns.forEach((b,i)=>{
+      const filled = (i+1 <= v), chosen = (i+1 === v);
+      b.classList.toggle('on', chosen);
+      b.classList.toggle('fill', filled && !chosen);
+      b.style.background = (filled && !chosen) ? 'rgba(232,147,12,'+(0.13+i*0.13).toFixed(2)+')' : '';
+    });
   });
 }
 (function(){
