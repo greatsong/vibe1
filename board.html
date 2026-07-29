@@ -97,7 +97,9 @@
     <h1>🤝 지금 이 순간! 어떤 정보 선생님들과 <span class="a">함께하고 있을까요?</span> 🗺️✨</h1>
     <div class="stat"><span class="n" id="nSchool">0</span><span class="lb">개 학교 접속!</span></div>
     <div class="legend">
+      <!-- 중등 연수라 초등 범례는 잠시 숨김 — 다른 연수에서 살리려면 아래 주석 해제
       <div class="it"><span class="sw" style="background:var(--c-e)"></span>초 <span class="cnt" id="cE">0</span></div>
+      -->
       <div class="it"><span class="sw" style="background:var(--c-m)"></span>중 <span class="cnt" id="cM">0</span></div>
       <div class="it"><span class="sw" style="background:var(--c-h)"></span>고 <span class="cnt" id="cH">0</span></div>
     </div>
@@ -388,7 +390,7 @@ async function poll(){
     if(freshItems.length){
       document.getElementById('empty').style.opacity=0;
       bump(document.getElementById('nSchool'), count);
-      document.getElementById('cE').textContent=cE;
+      const elE=document.getElementById('cE'); if(elE) elE.textContent=cE;   // 초 범례가 주석 처리돼 있어도 안전하게
       document.getElementById('cM').textContent=cM;
       document.getElementById('cH').textContent=cH;
       const g=pinsGeo(); if(fitChanged(g)) VIEW=buildProj(g);

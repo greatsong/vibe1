@@ -145,7 +145,9 @@ const $ = id => document.getElementById(id);
 const err = t => $('hint').innerHTML = `<span class="err">⚠️ ${t}</span>`;
 
 fetch('schools.json').then(r=>r.json()).then(d=>{
-  SCHOOLS = d.schools;
+  // 중등 연수라 초등학교는 검색에서 제외 — 초등까지 살리려면 filter 줄을 지우고 아래 주석을 해제
+  SCHOOLS = d.schools.filter(s => s[4] !== '초');
+  // SCHOOLS = d.schools;
   $('q').disabled = false; $('q').focus();
   const note = (API_URL.indexOf('http')===0) ? '' : ' · (시트 연결 전 · 테스트 모드)';
   $('hint').textContent = `전국 ${SCHOOLS.length.toLocaleString()}개 학교 중에서 검색해요` + note;
