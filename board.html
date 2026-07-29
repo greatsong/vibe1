@@ -99,6 +99,39 @@
   #qrbig .x{margin-top:14px;color:var(--muted);font-size:.9rem;}
   #empty{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);text-align:center;color:var(--muted);
     font-weight:800;font-size:1.1rem;transition:.4s;}
+  /* 통계 전체 화면 */
+  .sBigBtn{margin-top:9px;text-align:center;font-size:.72rem;font-weight:800;color:var(--accent);
+    border:1px solid var(--border);border-radius:10px;padding:5px 0;background:#fff;cursor:pointer;}
+  .sBigBtn:hover{border-color:var(--accent);}
+  #statsBig{position:absolute;inset:0;z-index:45;display:none;overflow:auto;cursor:pointer;
+    background:rgba(255,253,247,.98);padding:4vh 4vw;}
+  #statsBig.show{display:block;}
+  #statsBig .head3{max-width:1150px;margin:0 auto 18px;display:flex;align-items:baseline;gap:14px;}
+  #statsBig h2{margin:0;font-size:clamp(1.3rem,2.6vw,2rem);font-weight:900;letter-spacing:-.02em;}
+  #statsBig .x3{color:var(--muted);font-size:.85rem;font-weight:700;}
+  .sb-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;max-width:1150px;margin:0 auto;}
+  .sb-sec{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px 26px;box-shadow:0 8px 26px var(--shadow);}
+  .sb-sec.full{grid-column:1/-1;}
+  .sb-t{font-size:clamp(.95rem,1.5vw,1.15rem);font-weight:900;margin-bottom:14px;}
+  .bar3{display:flex;align-items:center;gap:12px;margin:9px 0;font-size:clamp(.85rem,1.3vw,1.05rem);}
+  .bar3 .bn3{width:140px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bar3 .bt3{flex:1;height:18px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;}
+  .bar3 .bf3{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent));border-radius:99px;min-width:4px;}
+  .bar3 .bc3{width:56px;text-align:right;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .bx3{display:flex;align-items:center;gap:12px;margin:10px 0;font-size:clamp(.85rem,1.3vw,1.05rem);}
+  .bx3 .bn3{width:230px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bx3 .tr3{flex:1;position:relative;height:30px;}
+  .bx3 .tr3 .line3{position:absolute;left:0;right:0;top:50%;height:1.5px;background:rgba(0,0,0,.10);}
+  .bx3 .tr3 .wh3{position:absolute;top:50%;height:2.5px;margin-top:-1.25px;background:#c9b98c;}
+  .bx3 .tr3 .bo3{position:absolute;top:4px;bottom:4px;background:linear-gradient(90deg,rgba(244,180,0,.5),rgba(232,147,12,.62));border:1.5px solid var(--accent);border-radius:7px;min-width:5px;}
+  .bx3 .tr3 .md3{position:absolute;top:2px;bottom:2px;width:3px;background:#8a5b00;border-radius:2px;}
+  .bx3 .av3{width:88px;text-align:right;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums;}
+  .bx3 .av3 small{color:var(--muted);font-weight:700;}
+  .bxaxis{display:flex;align-items:center;gap:12px;margin:2px 0 6px;font-size:.78rem;font-weight:800;color:var(--muted);}
+  .bxaxis .bn3{width:230px;}
+  .bxaxis .tr3{flex:1;position:relative;height:16px;}
+  .bxaxis .tr3 span{position:absolute;transform:translateX(-50%);}
+  .bxaxis .av3{width:88px;text-align:right;}
 </style>
 </head>
 <body>
@@ -123,6 +156,15 @@
       <div class="sT two">🎖 교육경력</div><div id="careerBars"><div class="none2">집계 중…</div></div>
       <div class="sT two">📊 분야별 자신감 (1~5 · 자신 없는 분야부터)</div><div id="skillStats"><div class="none2">집계 중…</div></div>
       <div class="sHint" id="sHint"></div>
+      <div class="sBigBtn" id="statsBigBtn">⛶ 전체 화면으로 크게 보기</div>
+    </div>
+    <div id="statsBig">
+      <div class="head3"><h2>📊 오늘 함께하는 선생님들</h2><span class="x3" id="sbCount"></span><span class="x3">(화면을 누르면 닫힘)</span></div>
+      <div class="sb-grid">
+        <div class="sb-sec"><div class="sb-t">🎨 바이브 코딩 경험</div><div id="sbVibe"></div></div>
+        <div class="sb-sec"><div class="sb-t">🎖 교육경력</div><div id="sbCareer"></div></div>
+        <div class="sb-sec full"><div class="sb-t">📊 분야별 자신감 (1~5 · 자신 없는 분야부터)</div><div id="sbSkill"></div></div>
+      </div>
     </div>
     <a id="hubLink" href="index.html">📘 교재 열기<span class="u" id="hubUrl"></span></a>
     <div id="qr">
@@ -351,6 +393,43 @@ function renderStats(){
   document.getElementById('sHint').textContent = statsExpanded ? '(클릭: 숫자로 접기)' : '(클릭: 그래프로 보기)';
 }
 document.getElementById('stats').addEventListener('click', ()=>{ statsExpanded=!statsExpanded; renderStats(); });
+
+// ---- 전체 화면 통계 (마무리 인사이트용) ----
+function bigBars(node, entries){
+  if(!entries.length){ node.innerHTML='<div class="none2">아직 없음</div>'; return; }
+  const m=Math.max(1,...entries.map(e=>e[1]));
+  node.innerHTML=entries.map(([k,v])=>
+    `<div class="bar3"><span class="bn3">${k}</span><span class="bt3"><span class="bf3" style="width:${v/m*100}%"></span></span><span class="bc3">${v}명</span></div>`).join('');
+}
+function bigBox(node){
+  const keys=Object.keys(SKILL_AVG).sort((a,b)=>SKILL_AVG[a]-SKILL_AVG[b]);
+  if(!keys.length){ node.innerHTML='<div class="none2">아직 없음</div>'; return; }
+  const x=v=>((v-1)/4*100);
+  const axis=`<div class="bxaxis"><span class="bn3"></span><span class="tr3">${[1,2,3,4,5].map(v=>`<span style="left:${x(v)}%">${v}</span>`).join('')}</span><span class="av3">평균 · 인원</span></div>`;
+  node.innerHTML=axis+keys.map(k=>{
+    const q=quartiles(SKILL_DIST[k]||{});
+    if(!q) return '';
+    return `<div class="bx3"><span class="bn3">${k}</span>`+
+      `<span class="tr3"><span class="line3"></span>`+
+      `<span class="wh3" style="left:${x(q.min)}%;width:${x(q.max)-x(q.min)}%"></span>`+
+      `<span class="bo3" style="left:${x(q.q1)}%;width:${Math.max(x(q.q3)-x(q.q1),1.5)}%"></span>`+
+      `<span class="md3" style="left:${x(q.med)}%"></span></span>`+
+      `<span class="av3">${SKILL_AVG[k].toFixed(1)} <small>· ${q.n}명</small></span></div>`;
+  }).join('');
+}
+function renderStatsBig(){
+  document.getElementById('sbCount').textContent = count + '개 학교 접속';
+  bigBars(document.getElementById('sbVibe'), ordered(VIBE_ORDER, VIBE));
+  bigBars(document.getElementById('sbCareer'), ordered(CAREER_ORDER, CAREER));
+  bigBox(document.getElementById('sbSkill'));
+}
+document.getElementById('statsBigBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  renderStatsBig();
+  document.getElementById('statsBig').classList.add('show');
+});
+document.getElementById('statsBig').addEventListener('click', ()=>document.getElementById('statsBig').classList.remove('show'));
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.getElementById('statsBig').classList.remove('show'); });
 
 function labelText(school,count){ return count>1 ? `${school} (${count})` : school; }
 function addPin(school,region,la,lo,kind,count){
