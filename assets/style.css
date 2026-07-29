@@ -278,3 +278,10 @@ table.glossary-table td.dayn { white-space: nowrap; font-weight: 800; color: var
   .instructor{flex-direction:column;}
   .instructor .ibooks{flex-direction:row;justify-content:center;width:100%;}
 }
+
+/* 코드 하이라이트 (highlight.js — 자체 구현) */
+.codewrap.code pre .tok-k{color:#f4b400;font-weight:700;}
+.codewrap.code pre .tok-s{color:#a8d08d;}
+.codewrap.code pre .tok-c{color:#9a8b6a;font-style:italic;}
+.codewrap.code pre .tok-n{color:#8ecbe6;}
+.codewrap.code pre .tok-d{color:#e8930c;}
