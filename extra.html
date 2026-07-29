@@ -42,9 +42,9 @@
 
   <h3>1-1. 프로젝트와 테이블 만들기</h3>
   <ol class="steps">
-    <li><span class="st">가입하고 새 프로젝트 만들기</span><br><a href="https://supabase.com" target="_blank" rel="noopener"><code>supabase.com</code></a>에서 GitHub 계정이나 이메일로 가입합니다. 카드 등록은 없어요. 처음이면 <b>조직(organization) 만들기</b>가 먼저 나옵니다. 이름을 아무거나 정하고 통과한 뒤 <b>New project</b>를 눌러 프로젝트 이름과 데이터베이스 비밀번호를 정하세요. 리전은 기본값 그대로 둡니다. 준비에 2분 안팎 걸리니 그동안 새로고침하거나 다시 누르지 마세요. <b>대시보드가 열리면 다음으로</b> 넘어갑니다.</li>
+    <li><span class="st">가입하고 새 프로젝트 만들기</span><br><a href="https://supabase.com" target="_blank" rel="noopener"><code>supabase.com</code></a>에서 GitHub 계정이나 이메일로 가입합니다. 카드 등록은 없습니다. 처음이면 <b>조직(organization) 만들기</b>가 먼저 나옵니다. 이름을 아무거나 정하고 통과한 뒤 <b>New project</b>를 눌러 프로젝트 이름과 데이터베이스 비밀번호를 정하세요. 리전은 기본값 그대로 둡니다. 준비에 2분 안팎 걸리니 그동안 새로고침하거나 다시 누르지 마세요. <b>대시보드가 열리면 다음으로</b> 넘어갑니다.</li>
     <li><span class="st">SQL 한 번 실행 — 테이블과 정책을 함께</span><br>왼쪽 <b>SQL Editor → New query</b>를 열고 아래 상자를 <b>그대로 붙여넣은 뒤 Run</b>을 누릅니다. <code>Success. No rows returned</code>가 뜨면 됩니다. 클릭으로 만들 수도 있지만, 그러면 열 이름을 손으로 치게 되고 <code>name</code>을 <code>names</code>로 적는 순간 앱이 안 돌아갑니다.</li>
-    <li><span class="st">주소와 키 복사</span><br><b>Settings → API Keys</b>에서 <b>publishable 키</b>를, <b>Settings → Data API</b>에서 <b>Project URL</b>을 복사합니다. 문자열 두 개가 전부예요. URL은 반드시 <code>.supabase.co</code>에서 끝나야 합니다. 뒤에 <code>/rest/v1</code> 같은 게 붙어 있으면 그 부분은 지우세요. 안 지우면 나중에 <code>PGRST125 Invalid path</code> 오류가 납니다. (화면 구성은 조금씩 바뀔 수 있어요. 못 찾으면 AI에게 물어보세요)</li>
+    <li><span class="st">주소와 키 복사</span><br><b>Settings → API Keys</b>에서 <b>publishable 키</b>를, <b>Settings → Data API</b>에서 <b>Project URL</b>을 복사합니다. 문자열 두 개가 전부입니다. URL은 반드시 <code>.supabase.co</code>에서 끝나야 합니다. 뒤에 <code>/rest/v1</code> 같은 게 붙어 있으면 그 부분은 지우세요. 안 지우면 나중에 <code>PGRST125 Invalid path</code> 오류가 납니다. (화면 구성은 조금씩 바뀔 수 있습니다. 못 찾으면 AI에게 물어보세요)</li>
   </ol>
 
   <div class="codewrap code"><span class="label">SQL Editor에 그대로 붙여넣고 Run</span><pre>create table votes (
@@ -64,16 +64,16 @@ create policy "누구나 쓰기" on votes
   <ul>
     <li>네 문장이 한 번에 돌아갑니다. <code>votes</code> 테이블(열 <code>name</code>·<code>times</code>·<code>created_at</code>)이 생기고, 잠금이 켜진 뒤, 읽기와 쓰기를 열어 주는 정책이 하나씩 붙습니다</li>
     <li>테이블 이름은 <code>votes</code>처럼 <b>글자로</b> 시작해야 합니다. <code>260729</code> 같은 숫자만으로는 안 됩니다</li>
-    <li><code>created_at</code>은 데이터베이스가 알아서 채웁니다. 앱에서 보낼 필요가 없어요</li>
+    <li><code>created_at</code>은 데이터베이스가 알아서 채웁니다. 앱에서 보낼 필요가 없습니다</li>
   </ul>
 
   <div class="callout warn">
     <div class="h">⚠️ 행 수준 보안(RLS)이 조용히 막습니다</div>
     <ul>
-      <li>Supabase는 새 테이블에 <b>행 수준 보안(RLS)</b>을 걸 수 있고, 걸리면 <b>기본값이 전부 차단</b>입니다. 정책을 하나도 안 만들면 아무것도 통과하지 못해요</li>
-      <li>막히는 모습이 둘로 갈립니다. <b>저장은</b> <code>row-level security</code> 문구가 든 빨간 오류로 바로 드러나는데, <b>읽기는 오류 없이 빈 목록</b>이 옵니다. 코드는 멀쩡해 보이는데 명단만 계속 비어 있어요</li>
+      <li>Supabase는 새 테이블에 <b>행 수준 보안(RLS)</b>을 걸 수 있고, 걸리면 <b>기본값이 전부 차단</b>입니다. 정책을 하나도 안 만들면 아무것도 통과하지 못합니다</li>
+      <li>막히는 모습이 둘로 갈립니다. <b>저장은</b> <code>row-level security</code> 문구가 든 빨간 오류로 바로 드러나는데, <b>읽기는 오류 없이 빈 목록</b>이 옵니다. 코드는 멀쩡해 보이는데 명단만 계속 비어 있습니다</li>
       <li>그래서 위 SQL에 테이블과 정책을 함께 넣었습니다. <b>읽기 정책과 쓰기 정책이 하나씩</b> 있어야 앱이 돕니다</li>
-      <li>관리자 화면(<b>Table Editor</b>)에서 직접 줄을 넣어 보는 것으로는 확인이 안 됩니다. 관리자 화면은 RLS를 거치지 않고 통과해요. 확인은 반드시 <b>배포한 앱에서</b> 하세요</li>
+      <li>관리자 화면(<b>Table Editor</b>)에서 직접 줄을 넣어 보는 것으로는 확인이 안 됩니다. 관리자 화면은 RLS를 거치지 않고 통과합니다. 확인은 반드시 <b>배포한 앱에서</b> 하세요</li>
       <li>정책이 제대로 붙었는지 보려면 <b>Table Editor</b>에서 <code>votes</code>를 열어 보세요. 이름 옆에 <b>Unrestricted</b> 배지가 없고 정책 수가 <b>2</b>로 표시되면 위 SQL이 다 돌아간 상태입니다</li>
     </ul>
   </div>
@@ -83,7 +83,7 @@ create policy "누구나 쓰기" on votes
     <ul>
       <li><b>publishable 키</b>(<code>sb_publishable_</code>로 시작) = 앱에 넣어도 되는 공개용. 여기서 쓰는 키입니다. 이 키로 들어온 요청은 위에서 만든 정책이 허용한 범위 안에서만 움직입니다</li>
       <li><b>secret 키</b>(<code>sb_secret_</code>로 시작) = 모든 잠금을 여는 관리자 키. 앱에도, GitHub에도 올리지 않습니다</li>
-      <li>2025년 11월 이전에 만든 프로젝트라면 옛 이름인 <b>anon</b>·<b>service_role</b> 키가 보일 수 있어요. 각각 publishable·secret에 해당합니다</li>
+      <li>2025년 11월 이전에 만든 프로젝트라면 옛 이름인 <b>anon</b>·<b>service_role</b> 키가 보일 수 있습니다. 각각 publishable·secret에 해당합니다</li>
     </ul>
   </div>
 
@@ -94,7 +94,7 @@ create policy "누구나 쓰기" on votes
 SUPABASE_KEY = "publishable_키_붙여넣기"</pre></div>
   <ol class="steps">
     <li><span class="st">클라우드 금고에 넣기</span><br>배포한 앱 화면 <b>오른쪽 아래 Manage app</b> → <b>⋮</b>(점 세 개) → <b>Settings</b> → <b>Secrets</b> 탭에 위 두 줄을 붙여넣고 <b>Save</b>. 저장하면 앱이 알아서 다시 시작합니다</li>
-    <li><span class="st">내 컴퓨터에서도 돌린다면</span><br><code>.streamlit/secrets.toml</code> 파일에 같은 두 줄을 넣고, <code>.gitignore</code>에 <code>.streamlit/secrets.toml</code> 한 줄을 적어 둡니다. 이 파일은 GitHub에 올리지 않아요</li>
+    <li><span class="st">내 컴퓨터에서도 돌린다면</span><br><code>.streamlit/secrets.toml</code> 파일에 같은 두 줄을 넣고, <code>.gitignore</code>에 <code>.streamlit/secrets.toml</code> 한 줄을 적어 둡니다. 이 파일은 GitHub에 올리지 않습니다</li>
   </ol>
 
   <h3>1-3. AI에게 주문하기</h3>
@@ -253,7 +253,7 @@ else:
     <li>데이터도 인증키도 필요 없습니다. 명단을 붙여넣으면 그 자리에서 돕니다. 이 절의 네 가지 중 가장 빨리 끝납니다</li>
     <li>발표자 뽑기, 모둠 편성, 자리 배치는 매 시간 쓰는 도구라 만든 다음 날부터 바로 쓰입니다</li>
     <li>손이 가는 부분은 무작위 자체가 아니라 <b>규칙</b>입니다. 한 번 뽑힌 사람은 다시 안 나오게, 특정 두 명은 같은 모둠에 묶이지 않게. 이런 조건을 어디까지 넣느냐가 앱의 값을 정합니다</li>
-    <li>고정 번호를 하나 두면 같은 명단에서 언제 돌려도 같은 결과가 나옵니다. 나중에 "그때 어떻게 나눴더라"를 다시 만들어 낼 수 있어요</li>
+    <li>고정 번호를 하나 두면 같은 명단에서 언제 돌려도 같은 결과가 나옵니다. 나중에 "그때 어떻게 나눴더라"를 다시 만들어 낼 수 있습니다</li>
   </ul>
   <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 '모둠 편성기' 앱 하나(app.py)를 만들어줘. 스트림릿 클라우드에 올릴 거야.
 
@@ -272,7 +272,7 @@ else:
 
   <h3>2-4. 인구 피라미드·지표 카드</h3>
   <ul>
-    <li>STEP 1에서 쓴 인구 파일에는 시군구 합계뿐 아니라 <b>읍·면·동 단위 1세 인구</b>가 다 들어 있습니다. 같은 파일로 앱을 하나 더 만들 수 있어요</li>
+    <li>STEP 1에서 쓴 인구 파일에는 시군구 합계뿐 아니라 <b>읍·면·동 단위 1세 인구</b>가 다 들어 있습니다. 같은 파일로 앱을 하나 더 만들 수 있습니다</li>
     <li>지도는 <b>어디가</b> 늙었는지를 보여 주고, 피라미드는 <b>그 동네가 어떤 모양으로</b> 늙었는지를 보여 줍니다. 둘을 같이 놓으면 학생이 읽을 거리가 생깁니다</li>
     <li>열 이름은 <code>연도</code>·<code>시도</code>·<code>시군구</code>·<code>동</code>·<code>코드</code> 다음에 <code>계_0세</code>부터 <code>계_100세 이상</code>, 이어서 <code>남_0세</code>·<code>여_0세</code>가 같은 방식으로 붙습니다. 2015~2026년이 한 파일에 있습니다</li>
     <li>자주 어긋나는 곳이 둘입니다. 막대가 한쪽으로만 자라거나, 나이 순서가 뒤섞여 0세와 100세가 붙어 나옵니다. 그래서 프롬프트에 <b>남자는 왼쪽·여자는 오른쪽</b>, <b>0세가 맨 아래·100세 이상이 맨 위</b>를 적어 둡니다</li>
@@ -297,7 +297,7 @@ else:
 - 한국어 라벨, 초보자용 한국어 주석. app.py 전체 코드를 한 번에 줘.</pre></div>
 
   <h2>3. 자동화 — 정해진 시간에 컴퓨터가 대신</h2>
-  <p>무료 스트림릿 앱은 방문이 한동안 없으면 잠듭니다. 다음 방문자는 깨우기 화면에서 1~2분 기다려야 해요. 로봇에게 시간표를 주고 대신 다녀오게 하면 이 대기가 사라집니다. 그 시간표를 적는 문법이 <b>cron</b>입니다.</p>
+  <p>무료 스트림릿 앱은 방문이 한동안 없으면 잠듭니다. 다음 방문자는 깨우기 화면에서 1~2분 기다려야 합니다. 로봇에게 시간표를 주고 대신 다녀오게 하면 이 대기가 사라집니다. 그 시간표를 적는 문법이 <b>cron</b>입니다.</p>
 
   <h3>3-1. cron 다섯 칸</h3>
   <div class="codewrap code"><span class="label">cron 다섯 칸의 순서</span><pre>┌─────── 분 (0-59)
@@ -368,8 +368,8 @@ jobs:
         env:
           API_KEY: ${{ secrets.API_KEY }}   # 키는 저장소 Secrets에서</pre></div>
   <ul>
-    <li>키는 코드에 적지 않습니다. <b>저장소 Settings → Secrets and variables → Actions</b>에 넣고 이름으로 꺼내 씁니다. 앱의 비밀 금고와 같은 원리예요</li>
-    <li><code>workflow_dispatch</code>를 적어 두면 Actions 탭에 <b>수동 실행 버튼</b>이 생깁니다. 시간표를 기다리지 않고 지금 바로 시험할 수 있어요</li>
+    <li>키는 코드에 적지 않습니다. <b>저장소 Settings → Secrets and variables → Actions</b>에 넣고 이름으로 꺼내 씁니다. 앱의 비밀 금고와 같은 원리입니다</li>
+    <li><code>workflow_dispatch</code>를 적어 두면 Actions 탭에 <b>수동 실행 버튼</b>이 생깁니다. 시간표를 기다리지 않고 지금 바로 시험할 수 있습니다</li>
   </ul>
   <div class="callout warn">
     <div class="h">⚠️ 미리 알아 둘 제약 다섯</div>
@@ -384,10 +384,10 @@ jobs:
   <div class="callout tip">
     <div class="h">💡 앱 깨우기는 만들지 말고 가져다 쓰기</div>
     <ul>
-      <li>스트림릿의 방문 감지는 까다로워서 단순 요청 한 번으로는 깨어나지 않습니다. 진짜 브라우저로 접속해야 해요</li>
+      <li>스트림릿의 방문 감지는 까다로워서 단순 요청 한 번으로는 깨어나지 않습니다. 진짜 브라우저로 접속해야 합니다</li>
       <li>이 조건을 이미 통과한 완성본이 <a href="https://github.com/greatsong/app-caretaker" target="_blank" rel="noopener">github.com/greatsong/app-caretaker</a>에 템플릿으로 있습니다. <b>Use this template → Create a new repository</b>로 내 계정에 복사하고, <code>apps.txt</code>에 내 앱 주소를 적은 뒤 Actions 탭에서 <b>Run workflow</b>를 한 번 누르면 됩니다</li>
-      <li>Fork가 아니라 <b>Use this template</b>이어야 합니다. 포크한 저장소에서는 시간표가 돌지 않아요</li>
-      <li>앱을 알릴 일이 끝나면 Actions 탭에서 <b>Disable workflow</b>로 꺼 두는 편이 낫습니다. 스트림릿이 앱을 재우는 건 무료 자원을 아끼기 위해서니까요</li>
+      <li>Fork가 아니라 <b>Use this template</b>이어야 합니다. 포크한 저장소에서는 시간표가 돌지 않습니다</li>
+      <li>앱을 알릴 일이 끝나면 Actions 탭에서 <b>Disable workflow</b>로 꺼 두는 편이 낫습니다. 스트림릿이 앱을 재우는 건 무료 자원을 아끼기 위해서입니다</li>
     </ul>
   </div>
 

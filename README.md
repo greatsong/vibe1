@@ -15,8 +15,8 @@
 | `board.html` | **인트로 · 앞 화면** — 실시간 전국 지도 |
 | `Code.gs` | 인트로 백엔드 (Google Apps Script) |
 | `prep.html` | 준비물 — 계정 3개 |
-| `step1.html` | 20~80분 · 길 뚫기 (인구·고령화 지도, 첫 배포) |
-| `step2.html` | 90~130분 · 키를 다루다 (KOBIS) |
+| `step1.html` | 20~80분 · 첫 배포 (인구·고령화 지도) |
+| `step2.html` | 90~130분 · 키 다루기 (KOBIS) |
 | `step3.html` | 130~165분 · 나만의 AI 채팅앱 |
 | `step4.html` | 175~210분 · 합치기 (멀티페이지) |
 | `extra.html` | 심화 자료 (DB · 오늘 다루지 않은 것 · 자동화) |
