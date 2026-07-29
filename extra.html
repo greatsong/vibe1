@@ -228,13 +228,13 @@ else:
     <li>OpenAlex는 2억 편이 넘는 논문 정보를 인증키 없이 열어 둔 서비스입니다. 주소는 <a href="https://api.openalex.org/works" target="_blank" rel="noopener"><code>api.openalex.org/works</code></a> 하나이고, 뒤에 검색어와 조건을 붙여 보냅니다</li>
     <li>연도별 편수는 <code>publication_year</code>로 묶어 달라고 하면 <b>한 번의 요청</b>으로 옵니다. 논문을 한 편씩 받아 세는 방식과 속도 차이가 큽니다</li>
     <li>실제로 불러 보면 제목에 <i>computational thinking</i>이 든 논문은 2016년 267편에서 2025년 1300편으로 늘었습니다. 정보 교과의 흐름을 숫자로 보여 주는 자료가 됩니다</li>
-    <li>주소에 <code>mailto</code>로 내 이메일을 붙이면 응답이 빠른 줄로 갑니다. OpenAlex가 안내하는 방식입니다</li>
+    <li>주소에 <code>mailto</code>로 이메일을 붙이면 응답이 빠른 줄로 갑니다. OpenAlex가 안내하는 방식입니다. 돌아온 코드의 <code>YOUR_EMAIL</code> 자리는 본인 이메일로 바꿉니다</li>
     <li>조건 이름은 <a href="https://developers.openalex.org/" target="_blank" rel="noopener">developers.openalex.org</a>에 정리돼 있습니다</li>
   </ul>
   <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 '내 분야 논문 흐름' 앱 하나(app.py)를 만들어줘. 스트림릿 클라우드에 올릴 거야.
 
 - 데이터는 OpenAlex야. 주소는 https://api.openalex.org/works 이고 인증키가 없어.
-  주소에 mailto로 내 이메일을 붙이면 응답이 빠른 줄로 가니까 그렇게 해줘.
+  주소에 mailto로 이메일을 붙이면 응답이 빠른 줄로 가. 이메일 자리는 YOUR_EMAIL로 적어 둬. 내 이메일로는 내가 바꿀게.
 - 화면 맨 위에 영어 검색어 입력창을 두고, 처음 값은 computational thinking으로.
 - 제목에 그 검색어가 든 논문만, 2010년 이후로 한정해서 세어 줘.
   결과가 수천 편이라 한 편씩 다 받아 오면 앱이 멈춰. 편수만 세어서 받아 와.

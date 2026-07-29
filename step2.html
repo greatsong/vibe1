@@ -36,12 +36,150 @@
     <li><b>파일 하나만 바꿔 커밋하기</b> — 저장소를 새로 만들지 않고 앱 내용만 교체합니다</li>
   </ul>
 
-  <h2>1. KOBIS 키 발급</h2>
+  <h2>1. API란 무엇일까 — 관공서 민원창구</h2>
+  <ul>
+    <li>API는 <b>관공서 민원창구</b>와 같습니다. 정해진 창구(주소)에 정해진 서류(요청)를 내면, 정해진 양식(응답)으로 답을 줍니다</li>
+    <li>응답 양식은 보통 <b>JSON</b>입니다. 2절에서 실물로 봅니다</li>
+  </ul>
+
+  <table class="daymap">
+    <thead><tr><th>민원창구</th><th>API</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>창구 주소</td><td>요청 URL</td><td>어디에 물어볼지 정해진 인터넷 주소</td></tr>
+      <tr><td>제출 서류</td><td>요청(request)</td><td>"무엇을 알려줘"라는 우리의 물음</td></tr>
+      <tr><td>돌려받는 서류</td><td>응답(response)</td><td>정해진 양식(JSON)으로 오는 답</td></tr>
+      <tr><td>신분증</td><td>API 키</td><td>"나 이 서비스 쓰는 사람"임을 증명하는 열쇠</td></tr>
+    </tbody>
+  </table>
+
+  <details class="glossary">
+    <summary>🔬 더 알아보기 — 관공서에서 등본 떼기로 이해하는 API</summary>
+    <div class="gin">
+      <p style="margin:10px 0 12px">API는 <b>'정해진 양식을 채워 보내면, 원하는 결과물을 정해진 형식으로 돌려주는 창구'</b>입니다. 아래 두 줄은 <b>클릭할 때마다 한 단계씩</b> 움직입니다 — ①신청서 쓰기 → ②보내기 → ③결과물 만들기 → ④받기. 동사무소 등본 떼기와 내 앱의 박스오피스 받기가 똑같이 '<b>요청 → 응답</b>'으로 흐릅니다.</p>
+<svg class="api-svg" viewBox="0 0 800 445" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="클릭할 때마다 한 단계씩 진행되는 API 요청과 응답 그림">
+  <defs>
+    <marker id="arR" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto"><path d="M0,0 L11,5.5 L0,11 z" fill="#7d93ef"/></marker>
+    <marker id="arL" markerWidth="11" markerHeight="11" refX="8" refY="5.5" orient="auto"><path d="M0,0 L11,5.5 L0,11 z" fill="#e98bb6"/></marker>
+    <filter id="ds2" x="-30%" y="-30%" width="160%" height="170%"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#2a3568" flood-opacity="0.14"/></filter>
+  </defs>
+
+  <g class="lane" data-lane="A" data-req-y="98" data-res-y="146" style="cursor:pointer">
+    <rect x="6" y="14" width="788" height="190" fill="transparent" pointer-events="all"/>
+    <text class="hint" x="400" y="42" text-anchor="middle" font-size="16" font-weight="800" fill="#3b47c2">👆 클릭 ① — 신청서 쓰기</text>
+    <g filter="url(#ds2)" pointer-events="none"><rect x="28" y="64" width="180" height="100" rx="18" fill="#ffffff" stroke="#e6e8f2"/></g>
+    <text x="118" y="114" text-anchor="middle" font-size="36" pointer-events="none">🙋</text>
+    <text x="118" y="148" text-anchor="middle" font-size="15" font-weight="800" fill="#2b2d3a" pointer-events="none">나 = 민원인</text>
+    <g filter="url(#ds2)" pointer-events="none"><rect x="592" y="64" width="180" height="100" rx="18" fill="#eef0ff" stroke="#c3c9f5"/></g>
+    <text x="682" y="110" text-anchor="middle" font-size="33" pointer-events="none">🏛️</text>
+    <text x="682" y="140" text-anchor="middle" font-size="15" font-weight="800" fill="#3b47c2" pointer-events="none">관공서 창구</text>
+    <text x="682" y="157" text-anchor="middle" font-size="11.5" fill="#8a8fb0" pointer-events="none">데이터 보관</text>
+    <line x1="216" y1="98" x2="584" y2="98" stroke="#9fb0f5" stroke-width="2.5" stroke-dasharray="6 6" marker-end="url(#arR)" pointer-events="none"/>
+    <text x="400" y="86" text-anchor="middle" font-size="13" fill="#5B6CF0" font-weight="800" pointer-events="none">요청(신청서) →</text>
+    <line x1="584" y1="146" x2="216" y2="146" stroke="#f0b9d2" stroke-width="2.5" stroke-dasharray="6 6" marker-end="url(#arL)" pointer-events="none"/>
+    <text x="400" y="170" text-anchor="middle" font-size="13" fill="#E0568A" font-weight="800" pointer-events="none">← 응답(결과물)</text>
+    <g class="doc-req" opacity="0" pointer-events="none">
+      <rect x="-62" y="-38" width="124" height="76" rx="8" fill="#ffffff" stroke="#b9c0f5"/>
+      <rect x="-62" y="-38" width="124" height="22" rx="8" fill="#5B6CF0"/><rect x="-62" y="-27" width="124" height="11" fill="#5B6CF0"/>
+      <text x="0" y="-22" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">📝 등본 신청서</text>
+      <text x="0" y="4" text-anchor="middle" font-size="13" font-weight="800" fill="#3b47c2">이름: 홍길동</text>
+      <text x="0" y="24" text-anchor="middle" font-size="13" font-weight="800" fill="#3b47c2">주소: 서울 ○○구</text>
+    </g>
+    <g class="doc-res" opacity="0" pointer-events="none">
+      <rect x="-66" y="-44" width="132" height="88" rx="8" fill="#ffffff" stroke="#f0c6da"/>
+      <rect x="-66" y="-44" width="132" height="22" rx="8" fill="#E0568A"/><rect x="-66" y="-33" width="132" height="11" fill="#E0568A"/>
+      <text x="0" y="-28" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">📄 주민등록등본</text>
+      <text x="0" y="-2" text-anchor="middle" font-size="14" font-weight="800" fill="#2b2d3a">홍길동</text>
+      <text x="0" y="16" text-anchor="middle" font-size="12" fill="#55524c">서울 ○○구</text>
+      <circle cx="0" cy="31" r="8" fill="none" stroke="#e0392f" stroke-width="1.4"/><text x="0" y="34.5" text-anchor="middle" font-size="8" font-weight="800" fill="#e0392f">印</text>
+    </g>
+  </g>
+
+  <line x1="40" y1="205" x2="760" y2="205" stroke="#eceef5" stroke-width="1"/>
+
+  <g class="lane" data-lane="B" data-req-y="298" data-res-y="342" style="cursor:pointer">
+    <rect x="6" y="212" width="788" height="192" fill="transparent" pointer-events="all"/>
+    <text class="hint" x="400" y="240" text-anchor="middle" font-size="16" font-weight="800" fill="#0e9488">👆 클릭 ① — 요청 만들기</text>
+    <g filter="url(#ds2)" pointer-events="none"><rect x="28" y="264" width="180" height="100" rx="18" fill="#ffffff" stroke="#e6e8f2"/></g>
+    <text x="118" y="314" text-anchor="middle" font-size="36" pointer-events="none">💻</text>
+    <text x="118" y="348" text-anchor="middle" font-size="15" font-weight="800" fill="#2b2d3a" pointer-events="none">내 앱 · 브라우저</text>
+    <g filter="url(#ds2)" pointer-events="none"><rect x="592" y="264" width="180" height="100" rx="18" fill="#eef0ff" stroke="#c3c9f5"/></g>
+    <text x="682" y="308" text-anchor="middle" font-size="33" pointer-events="none">🎬</text>
+    <text x="682" y="338" text-anchor="middle" font-size="15" font-weight="800" fill="#3b47c2" pointer-events="none">KOBIS</text>
+    <text x="682" y="355" text-anchor="middle" font-size="11.5" fill="#8a8fb0" pointer-events="none">= 관공서(API)</text>
+    <line x1="216" y1="298" x2="584" y2="298" stroke="#9fb0f5" stroke-width="2.5" stroke-dasharray="6 6" marker-end="url(#arR)" pointer-events="none"/>
+    <text x="400" y="286" text-anchor="middle" font-size="13" fill="#5B6CF0" font-weight="800" pointer-events="none">요청(신청서) →</text>
+    <line x1="584" y1="342" x2="216" y2="342" stroke="#f0b9d2" stroke-width="2.5" stroke-dasharray="6 6" marker-end="url(#arL)" pointer-events="none"/>
+    <text x="400" y="366" text-anchor="middle" font-size="13" fill="#E0568A" font-weight="800" pointer-events="none">← 응답(결과물)</text>
+    <g class="doc-req" opacity="0" pointer-events="none">
+      <rect x="-66" y="-44" width="132" height="88" rx="8" fill="#ffffff" stroke="#b9c0f5"/>
+      <rect x="-66" y="-44" width="132" height="22" rx="8" fill="#0e9488"/><rect x="-66" y="-33" width="132" height="11" fill="#0e9488"/>
+      <text x="0" y="-28" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">📝 요청 (URL)</text>
+      <text x="0" y="-4" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3b47c2">날짜: 어제(여덟 자리)</text>
+      <text x="0" y="14" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3b47c2">키: 발급받은 인증키</text>
+      <text x="0" y="32" text-anchor="middle" font-size="12.5" font-weight="800" fill="#3b47c2">창구: 일별 박스오피스</text>
+    </g>
+    <g class="doc-res" opacity="0" pointer-events="none">
+      <rect x="-82" y="-52" width="164" height="104" rx="8" fill="#ffffff" stroke="#a7d8d4"/>
+      <rect x="-82" y="-52" width="164" height="22" rx="8" fill="#0e9488"/><rect x="-82" y="-41" width="164" height="11" fill="#0e9488"/>
+      <text x="0" y="-36" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">📦 응답 (JSON)</text>
+      <text x="0" y="-6" text-anchor="middle" font-size="18" font-weight="800" fill="#2b2d3a">🥇 어제 1위 영화</text>
+      <text x="0" y="13" text-anchor="middle" font-size="11" fill="#8a8fa6">관객수·누적·스크린수</text>
+      <text x="0" y="36" text-anchor="middle" font-size="12" font-weight="800" fill="#0e9488" font-family="monospace">{"rank": "1", ...}</text>
+    </g>
+  </g>
+
+  <text x="400" y="432" text-anchor="middle" font-size="12.5" fill="#7a7f95" pointer-events="none">이름·주소 = 날짜·인증키(신청) · 주민등록등본 = 박스오피스 목록(결과) · 관공서 = API 서버 · 🔑 신분증 = API 키</text>
+</svg>
+<script>
+(function () {
+  var STEPS = {
+    A: ["👆 클릭 ① — 신청서 쓰기", "👆 클릭 ② — 창구로 보내기", "👆 클릭 ③ — 등본 만들기", "👆 클릭 ④ — 등본 받기", "✅ 한 바퀴 끝! 클릭하면 처음부터"],
+    B: ["👆 클릭 ① — 요청 만들기", "👆 클릭 ② — 창구로 보내기", "👆 클릭 ③ — 응답(JSON) 만들기", "👆 클릭 ④ — 응답 받기", "✅ 한 바퀴 끝! 클릭하면 처음부터"]
+  };
+  var START_X = 275, END_X = 525;
+  var MOVE = "transform 2.8s ease-in-out, opacity 0.7s ease";
+  document.querySelectorAll(".api-svg .lane").forEach(function (lane) {
+    var id = lane.getAttribute("data-lane");
+    var req = lane.querySelector(".doc-req");
+    var res = lane.querySelector(".doc-res");
+    var hint = lane.querySelector(".hint");
+    var reqY = +lane.getAttribute("data-req-y");
+    var resY = +lane.getAttribute("data-res-y");
+    var s = 0;
+    function reset() {
+      req.style.transition = "none";
+      res.style.transition = "none";
+      req.style.transform = "translate(" + START_X + "px," + reqY + "px)";
+      res.style.transform = "translate(" + END_X + "px," + resY + "px)";
+      req.style.opacity = 0;
+      res.style.opacity = 0;
+      req.getBoundingClientRect();
+      req.style.transition = MOVE;
+      res.style.transition = MOVE;
+      hint.textContent = STEPS[id][0];
+    }
+    reset();
+    lane.addEventListener("click", function () {
+      s = (s + 1) % 5;
+      if (s === 1) { req.style.opacity = 1; }
+      else if (s === 2) { req.style.transform = "translate(" + END_X + "px," + reqY + "px)"; }
+      else if (s === 3) { req.style.opacity = 0; res.style.opacity = 1; }
+      else if (s === 4) { res.style.transform = "translate(" + START_X + "px," + resY + "px)"; }
+      else { s = 0; reset(); return; }
+      hint.textContent = STEPS[id][s];
+    });
+  });
+})();
+</script>
+    </div>
+  </details>
+
+  <h2>2. KOBIS 키 발급</h2>
   <p>가입도 발급도 무료이고, 신청하면 바로 나옵니다. 심사 대기가 없습니다.</p>
   <ol class="steps">
     <li><span class="st">가입</span><br>영화진흥위원회 오픈API <a href="https://www.kobis.or.kr/kobisopenapi/" target="_blank" rel="noopener"><code>kobis.or.kr/kobisopenapi</code></a> 접속 → 오른쪽 위 <b>로그인</b> → 로그인 화면 아래 <b>회원가입</b></li>
     <li><span class="st">키 발급</span><br>로그인한 상태에서 상단 <b>키 발급/관리</b> → 다시 <b>키 발급/관리</b> → 발급 신청 → 화면에 뜬 인증키 <b>복사</b></li>
-    <li><span class="st">문서는 열어만 두기</span><br>상단 <b>OPEN API → 제공서비스 → 일별 박스오피스</b>. 지금 읽지 않아도 됩니다. 4절에서 통째로 씁니다</li>
+    <li><span class="st">문서는 열어만 두기</span><br>상단 <b>OPEN API → 제공서비스 → 일별 박스오피스</b>. 지금 읽지 않아도 됩니다. 5절에서 통째로 씁니다</li>
   </ol>
   <div class="callout tip">
     <div class="h">💡 발급이 지연되면 강사 예비 키로</div>
@@ -58,7 +196,7 @@
     </ul>
   </div>
 
-  <h2>2. 앱을 만들기 전에, 주소창으로 한 번</h2>
+  <h2>3. 앱을 만들기 전에, 주소창으로 한 번</h2>
   <p>KOBIS는 키를 주소에 붙여 보내는 방식이라 브라우저 주소창만으로 요청이 됩니다. 코드로 넘어가기 전에 <b>키가 살아 있는지</b>부터 확인합니다.</p>
   <div class="codewrap code"><span class="label">주소의 생김새 (직접 고칠 필요 없음 · 아래 상자 사용)</span><pre>https://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?key=발급받은키&amp;targetDt=20260728</pre></div>
   <div class="urlmaker" id="km-box">
@@ -100,7 +238,7 @@
     <div class="h">⚠️ 숫자가 따옴표에 싸여 있습니다</div>
     <ul>
       <li><code>"audiCnt": "100148"</code>. 관객수가 숫자가 아니라 <b>글자</b>로 옵니다</li>
-      <li>글자인 채로는 정렬도 그래프도 엉킵니다. <b>숫자로 바꾸는 한 단계</b>가 반드시 필요합니다. 4절 프롬프트에 이 조건을 적어 둔 이유입니다</li>
+      <li>글자인 채로는 정렬도 그래프도 엉킵니다. <b>숫자로 바꾸는 한 단계</b>가 반드시 필요합니다. 5절 프롬프트에 이 조건을 적어 둔 이유입니다</li>
     </ul>
   </div>
   <div class="callout warn">
@@ -120,7 +258,7 @@
     </ul>
   </div>
 
-  <h2>3. 키를 비밀 금고(secrets)에 넣기</h2>
+  <h2>4. 키를 비밀 금고(secrets)에 넣기</h2>
   <p>방금 받은 키를 <b>코드에 적지 않고</b> 앱의 금고에 넣습니다. STEP 1에서 배포한 앱을 그대로 씁니다.</p>
   <ol class="steps">
     <li><span class="st">배포된 내 앱 열기</span><br>STEP 1에서 받은 <code>~.streamlit.app</code> 주소로 접속. 스트림릿 클라우드에 로그인된 상태여야 합니다</li>
@@ -168,7 +306,7 @@
     </ul>
   </div>
 
-  <h2>4. 앱 바꿔 올리기</h2>
+  <h2>5. 앱 바꿔 올리기</h2>
   <p>STEP 1 저장소 <code>my-vibe-app</code>의 <code>app.py</code>를 박스오피스 앱으로 통째로 교체합니다. 저장소도 앱 주소도 그대로입니다.</p>
   <div class="callout tip">
     <div class="h">💡 덮어써도 앞 코드는 남아 있습니다</div>
@@ -264,7 +402,7 @@ st.bar_chart(top5.set_index("영화명")["관객수"])</pre></div>
   <div class="codewrap code"><span class="label">requirements.txt (STEP 1 그대로 · 고칠 것 없음)</span><pre>plotly
 requests</pre></div>
 
-  <h2>5. 커밋하면 다시 배포됩니다</h2>
+  <h2>6. 커밋하면 다시 배포됩니다</h2>
   <ol class="steps">
     <li><span class="st">파일 교체</span><br>GitHub 저장소 <code>my-vibe-app</code> → <code>app.py</code> → 연필 아이콘 → 기존 내용 <b>전체 선택 후 삭제</b> → 새 코드 붙여넣기</li>
     <li><span class="st">저장(커밋)</span><br>오른쪽 위 초록 <b>Commit changes...</b> 버튼 → 대화창에서 다시 <b>Commit changes</b></li>
@@ -276,13 +414,13 @@ requests</pre></div>
       <li>맨 위 카드 세 장에 <b>어제 1위 영화 이름</b>, 그 영화의 관객수, 누적 관객이 숫자로 차 있습니다</li>
       <li>그 아래 표에 영화 <b>10줄</b>이 순위대로 있고, 맨 아래 막대그래프에 영화 5편이 그려져 있습니다</li>
       <li>주소는 STEP 1과 같은데 지도가 있던 자리에 영화 표가 있습니다. 저장소를 새로 만들지 않았습니다</li>
-      <li><code>KeyError: 'KOBIS_KEY'</code>가 뜨면 3절 이름 표를 다시 보세요</li>
+      <li><code>KeyError: 'KOBIS_KEY'</code>가 뜨면 4절 이름 표를 다시 보세요</li>
       <li>화면이 안 바뀌면 <b>Manage app</b> 로그 창에서 빌드가 아직 도는지 확인. 그래도 그대로면 로그 창 <b>⋮</b> 메뉴의 <b>Reboot app</b></li>
       <li>막히면 화면의 에러 메시지를 통째로 복사해 AI에게 붙여넣으세요</li>
     </ul>
   </div>
 
-  <h2>6. 프롬프트 개선</h2>
+  <h2>7. 프롬프트 개선</h2>
   <p>화면이 떴으면 대화로 이어서 고칩니다. 새 창을 열지 말고 같은 대화에서 이어 말하는 게 중요합니다.</p>
   <div class="codewrap improve"><span class="label">③ 프롬프트 개선</span><pre>좋아, 여기서 이어서 고쳐 줘.
 - 날짜를 어제로 고정하지 말고, 달력에서 골라 그날의 박스오피스를 볼 수 있게 해 줘.
@@ -375,7 +513,7 @@ st.bar_chart(top5.set_index("영화명")["관객수"])</pre></div>
 
   <div class="pager">
     <a class="prev" href="step1.html"><div class="dir">← 이전</div><div class="tt">STEP 1 · 첫 배포</div></a>
-    <a class="next" href="step3.html"><div class="dir">다음 →</div><div class="tt">STEP 3 · 골라서 만들기</div></a>
+    <a class="next" href="step3.html"><div class="dir">다음 →</div><div class="tt">STEP 3 · 나만의 AI 채팅앱</div></a>
   </div>
 </main>
 </div>
