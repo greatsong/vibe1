@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2026년의 AI융합교육, On AI와 Non AI 사이에서</title>
+<style>
+  :root{
+    --bg:#0A0A0B;
+    --bg2:#0E0E11;
+    --ink:#F4F4F2;
+    --ink-dim:#9A9A98;
+    --ink-faint:#5A5A5C;
+    --green:#5BE38B;      /* On AI — 초록불, AI에게 켜 주는 신호 */
+    --green-soft:#9DF0BA;
+    --red:#FF7A6B;        /* Non AI — 빨간불, AI를 잠시 멈추는 신호 */
+    --red-soft:#FFA79C;
+    --yellow:#F3C34A;     /* 그 사이 — 노란불, 지향점 */
+    --yellow-soft:#F8D98A;
+    --line:#FFFFFF;
+    --ease:cubic-bezier(.22,.61,.36,1);
+    --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard",
+            "Malgun Gothic", "맑은 고딕", "Noto Sans KR", system-ui, sans-serif;
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    letter-spacing:-.01em;
+    /* 한글은 어절(띄어쓰기) 단위로만 줄바꿈 */
+    word-break:keep-all;
+    overflow-wrap:break-word;
+  }
+
+  .stage{
+    position:fixed; inset:0;
+    background:
+      radial-gradient(120% 90% at 50% 30%, rgba(255,255,255,.035), transparent 60%),
+      radial-gradient(100% 120% at 20% 120%, rgba(91,227,139,.05), transparent 55%),
+      radial-gradient(100% 120% at 80% 120%, rgba(255,122,107,.045), transparent 55%),
+      var(--bg);
+  }
+
+  .deck{ position:fixed; inset:0; }
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding: clamp(28px, 6vw, 96px);
+    text-align:center;
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(14px);
+    transition:opacity .9s var(--ease), transform 1.1s var(--ease), visibility .9s;
+    will-change:opacity, transform;
+  }
+  .slide.active{
+    opacity:1; visibility:visible; transform:none;
+    transition-delay:.05s;
+  }
+  .slide.past{ transform:translateY(-14px); }
+
+  .slide .rise{
+    opacity:0; transform:translateY(22px);
+    transition:opacity .9s var(--ease), transform 1s var(--ease);
+  }
+  .slide.active .rise{ opacity:1; transform:none; }
+  .slide.active .rise.d1{ transition-delay:.18s; }
+  .slide.active .rise.d2{ transition-delay:.34s; }
+  .slide.active .rise.d3{ transition-delay:.52s; }
+  .slide.active .rise.d4{ transition-delay:.72s; }
+
+  /* ---- Typographic system ---- */
+  .kicker{
+    font-size:clamp(12px, 1.5vw, 16px);
+    font-weight:500;
+    letter-spacing:.42em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:clamp(20px,3.4vh,42px);
+    padding-left:.42em;
+  }
+  .label{
+    font-size:clamp(15px, 2.1vw, 24px);
+    font-weight:400;
+    color:var(--ink-dim);
+    letter-spacing:.04em;
+    margin-bottom:clamp(14px, 2.6vh, 30px);
+  }
+  .hero{
+    font-weight:800;
+    line-height:1.06;
+    letter-spacing:-.03em;
+    font-size:clamp(40px, 8vw, 120px);
+  }
+  .hero.med{ font-size:clamp(34px, 6.2vw, 92px); }
+  .sub{
+    margin-top:clamp(22px,3.6vh,40px);
+    font-size:clamp(15px, 2.2vw, 26px);
+    font-weight:400;
+    color:var(--ink-dim);
+    letter-spacing:.02em;
+    max-width:min(100%, 24em);
+    line-height:1.6;
+  }
+  .green{ color:var(--green); }
+  .red{ color:var(--red); }
+  .yellow{ color:var(--yellow); }
+  .nowrap{ white-space:nowrap; }
+
+  .lead{
+    font-size:clamp(24px, 4.4vw, 60px);
+    font-weight:300;
+    line-height:1.4;
+    letter-spacing:-.015em;
+    max-width:min(100%, 22em);
+    color:var(--ink);
+  }
+  .lead b{ font-weight:800; letter-spacing:-.025em; }
+  .lead.big{
+    font-size:clamp(34px, 7.4vw, 104px);
+    line-height:1.16;
+    letter-spacing:-.03em;
+    max-width:min(100%, 15em);
+  }
+
+  /* ---- 신호등 마크 ---- */
+  .mark{
+    display:flex; align-items:center; gap:clamp(14px,2.2vw,26px);
+    padding:clamp(12px,1.8vh,18px) clamp(20px,2.6vw,32px);
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.03);
+    margin-bottom:clamp(26px,4.6vh,54px);
+  }
+  .mark i{
+    display:block;
+    width:clamp(22px,3.8vh,40px); height:clamp(22px,3.8vh,40px);
+    border-radius:50%;
+  }
+  .mark .l-g{
+    background:radial-gradient(circle at 38% 32%, var(--green-soft), var(--green) 60%, #2E9B58 100%);
+    box-shadow:0 0 12px rgba(91,227,139,.55), 0 0 40px rgba(91,227,139,.25);
+    animation:pulse 5s var(--ease) infinite;
+  }
+  .mark .l-y{
+    background:radial-gradient(circle at 38% 32%, var(--yellow-soft), var(--yellow) 60%, #B98A17 100%);
+    box-shadow:0 0 12px rgba(243,195,74,.5), 0 0 40px rgba(243,195,74,.22);
+    animation:pulse 5s var(--ease) 1.6s infinite;
+  }
+  .mark .l-r{
+    background:radial-gradient(circle at 38% 32%, var(--red-soft), var(--red) 60%, #C24537 100%);
+    box-shadow:0 0 12px rgba(255,122,107,.5), 0 0 40px rgba(255,122,107,.22);
+    animation:pulse 5s var(--ease) 3.2s infinite;
+  }
+  @keyframes pulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.12);} }
+
+  /* ---- 역량 칩 (On AI 슬라이드) ---- */
+  .chip-row{
+    display:flex; gap:clamp(8px,1.2vw,16px); flex-wrap:wrap; justify-content:center;
+    margin-top:clamp(20px,3.4vh,38px);
+  }
+  .chip{
+    padding:clamp(7px,1.2vh,11px) clamp(11px,1.4vw,18px);
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.03);
+    font-size:clamp(12px,1.5vw,17px);
+    color:var(--ink-dim);
+    white-space:nowrap;
+  }
+  .chip.g{
+    color:var(--ink); font-weight:700;
+    border-color:rgba(91,227,139,.7);
+    background:rgba(91,227,139,.1);
+    box-shadow:0 0 18px rgba(91,227,139,.18);
+  }
+
+  /* ---- 도구 카드 ---- */
+  .cards{
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    gap:clamp(10px,1.6vw,18px);
+    width:min(980px, 92vw);
+  }
+  .card{
+    text-align:left;
+    padding:clamp(14px,2.2vh,24px) clamp(16px,1.8vw,24px);
+    border-radius:14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .card .name{
+    font-size:clamp(15px,1.9vw,21px); font-weight:700; letter-spacing:-.02em;
+    margin-bottom:.45em;
+  }
+  .card .desc{
+    font-size:clamp(12.5px,1.5vw,16px); color:var(--ink-dim); line-height:1.55;
+  }
+  .card.c-green .name{ color:var(--green); }
+  .card.c-yellow .name{ color:var(--yellow); }
+
+  /* ---- 수업 흐름 트랙 ---- */
+  .tracks{
+    display:flex; flex-direction:column; gap:clamp(14px,2.6vh,26px);
+    width:min(1040px, 94vw);
+  }
+  .track{
+    display:flex; align-items:center; justify-content:center;
+    flex-wrap:wrap; gap:clamp(6px,.9vw,12px);
+  }
+  .track .tag{
+    font-weight:800; letter-spacing:.02em;
+    font-size:clamp(14px,1.9vw,21px);
+    min-width:clamp(64px,8vw,96px); text-align:right;
+    margin-right:clamp(6px,1vw,14px);
+  }
+  .track.t-on .tag{ color:var(--green); }
+  .track.t-non .tag{ color:var(--red); }
+  .track .chip.hl{
+    color:var(--ink); font-weight:700;
+  }
+  .track.t-on .chip.hl{
+    border-color:rgba(91,227,139,.75);
+    background:rgba(91,227,139,.12);
+    box-shadow:0 0 18px rgba(91,227,139,.22);
+  }
+  .track.t-non .chip.hl{
+    border-color:rgba(255,122,107,.75);
+    background:rgba(255,122,107,.12);
+    box-shadow:0 0 18px rgba(255,122,107,.2);
+  }
+  .track .sep{ color:var(--ink-faint); font-size:clamp(12px,1.4vw,16px); }
+
+  /* ---- 학생 반응 리스트 ---- */
+  .points{
+    display:flex; flex-direction:column; gap:clamp(14px,2.4vh,24px);
+    width:min(860px, 90vw); text-align:left;
+  }
+  .point{
+    display:flex; gap:clamp(12px,1.6vw,20px); align-items:flex-start;
+    padding:clamp(14px,2.2vh,22px) clamp(16px,2vw,26px);
+    border-radius:14px;
+    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .point .bar{
+    flex:none; width:4px; align-self:stretch; border-radius:2px;
+    background:linear-gradient(180deg, var(--green), var(--yellow), var(--red));
+  }
+  .point p{
+    font-size:clamp(14px,1.9vw,21px); line-height:1.6; color:var(--ink);
+    font-weight:400;
+  }
+  .point p small{
+    display:block; margin-top:.3em;
+    font-size:clamp(12px,1.4vw,15px); color:var(--ink-dim);
+  }
+
+  /* ---- Progress dots ---- */
+  .dots{
+    position:fixed; left:50%; bottom:clamp(20px,3.6vh,34px); transform:translateX(-50%);
+    display:flex; gap:11px; z-index:20;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:var(--ink-faint); opacity:.5;
+    border:none; padding:0; cursor:pointer;
+    transition:all .4s var(--ease);
+  }
+  .dot:hover{ opacity:.85; }
+  .dot.on{ width:24px; border-radius:4px; background:var(--ink); opacity:1; }
+
+  .topbar{
+    position:fixed; top:0; left:0; height:2px; z-index:20;
+    background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));
+    width:0; transition:width .7s var(--ease);
+  }
+
+  .hint{
+    position:fixed; right:clamp(18px,3vw,32px); bottom:clamp(20px,3.6vh,34px);
+    font-size:12px; letter-spacing:.14em; color:var(--ink-faint); z-index:20;
+    text-transform:uppercase; user-select:none;
+    transition:opacity .6s;
+  }
+  .counter{
+    position:fixed; left:clamp(18px,3vw,32px); bottom:clamp(20px,3.6vh,34px);
+    font-size:12px; letter-spacing:.18em; color:var(--ink-faint); z-index:20;
+    font-variant-numeric:tabular-nums;
+  }
+
+  @media (max-width:720px){
+    .cards{ grid-template-columns:repeat(2, 1fr); }
+    .track .tag{ width:100%; text-align:center; margin-right:0; }
+  }
+  @media (max-width:520px){
+    .hint{ display:none; }
+    .kicker{ letter-spacing:.3em; }
+    .cards{ grid-template-columns:1fr 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; }
+    .slide{ transition:opacity .3s ease, visibility .3s; transform:none !important; }
+    .slide .rise{ transition:opacity .3s ease; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="stage"></div>
+<div class="topbar" id="bar"></div>
+
+<main class="deck" id="deck">
+
+  <!-- 1. 표지 -->
+  <section class="slide" data-i="0" aria-label="표지">
+    <div class="mark rise" aria-hidden="true">
+      <i class="l-g"></i><i class="l-y"></i><i class="l-r"></i>
+    </div>
+    <div class="kicker rise d1">2026 수업 나눔</div>
+    <h1 class="hero med rise d2">
+      2026년의 AI융합교육,<br>
+      <span class="green">On AI</span>와 <span class="red">Non AI</span> <span class="yellow">사이</span>에서
+    </h1>
+    <p class="sub rise d3">바이브 코딩의 시대, 정보 수업의 두 갈래 실험</p>
+  </section>
+
+  <!-- 2. 수업 기획 의도 -->
+  <section class="slide" data-i="1" aria-label="수업 기획 의도">
+    <div class="kicker rise">수업 기획 의도</div>
+    <div class="label rise d1">바이브 코딩 열풍 속에서, 정보 수업은</div>
+    <h2 class="lead big rise d2">
+      AI를 <b class="green">활용하는 것</b>이 답인가,<br>
+      <b class="red">막는 것</b>이 답인가?
+    </h2>
+  </section>
+
+  <!-- 3. 올해의 실험 -->
+  <section class="slide" data-i="2" aria-label="올해의 실험">
+    <div class="label rise">그래서 올해는, AI에게</div>
+    <h2 class="lead rise d1">
+      어떤 수업에서는 <b class="green">초록불</b>을 켜고,<br>
+      어떤 수업에서는 <b class="red">빨간불</b>을 켰습니다.
+    </h2>
+    <p class="sub rise d3">무엇이 학생들의 성장과 문제해결능력 향상에<br>도움이 되는지 함께 나눕니다.</p>
+  </section>
+
+  <!-- 4. On AI = 초록불 -->
+  <section class="slide" data-i="3" aria-label="On AI, 초록불">
+    <div class="kicker rise">On AI · <span class="green">초록불</span></div>
+    <h2 class="lead rise d1">
+      알고리즘보다 <b class="green">빠르고 쉽게</b> 결과물을 만들며,<br>
+      데이터 분석의 <b>통찰</b>과 <b>문제해결력</b>을 키웁니다.
+    </h2>
+    <div class="chip-row rise d2" aria-label="키우는 역량">
+      <span class="chip g">문제 발견</span>
+      <span class="chip g">문제 정의</span>
+      <span class="chip g">문제 해결</span>
+    </div>
+    <p class="sub rise d3">만드는 속도가 빨라질수록,<br>문제 자체를 생각할 시간이 늘어납니다.</p>
+  </section>
+
+  <!-- 5. Non AI = 빨간불 -->
+  <section class="slide" data-i="4" aria-label="Non AI, 빨간불">
+    <div class="kicker rise">Non AI · <span class="red">빨간불</span></div>
+    <h2 class="lead rise d1">
+      <b>알고리즘</b>과 <b>사고력</b>을 키우는 수업에서는<br>
+      AI를 <b class="red">잠시 멈춥니다</b>.
+    </h2>
+    <p class="sub rise d3">스스로 코드를 짜고 고쳐 보며,<br>생각하는 힘을 기릅니다.</p>
+  </section>
+
+  <!-- 6. 활용한 도구 및 에듀테크 -->
+  <section class="slide" data-i="5" aria-label="활용한 도구 및 에듀테크">
+    <div class="kicker rise">활용한 도구 · 에듀테크</div>
+    <div class="label rise d1">수업에 필요한 도구는 AI와 함께 직접 만들었습니다</div>
+    <div class="cards rise d2">
+      <div class="card c-green">
+        <div class="name">당곡 AI 채팅</div>
+        <div class="desc">모든 학생에게 유료 AI 접근을 열어 주기 위해 개발한 서비스</div>
+      </div>
+      <div class="card">
+        <div class="name">깃허브</div>
+        <div class="desc">팀 프로젝트의 과정을 기록하고 협업하는 공간</div>
+      </div>
+      <div class="card c-green">
+        <div class="name">pythink2</div>
+        <div class="desc">컴퓨팅 사고력을 키우기 위해 개발한 서비스</div>
+      </div>
+      <div class="card c-green">
+        <div class="name">vpylab</div>
+        <div class="desc">융합적 문제해결력을 키우기 위해 개발한 서비스</div>
+      </div>
+      <div class="card c-yellow">
+        <div class="name">프롬프팅 챌린지</div>
+        <div class="desc">프롬프트를 다듬는 과정에서 컴퓨팅 사고력을 키우는 활동</div>
+      </div>
+      <div class="card c-yellow">
+        <div class="name">이미테이션 게임 챌린지</div>
+        <div class="desc">튜링의 이미테이션 게임을 직접 체험하는 활동</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 수업의 흐름 -->
+  <section class="slide" data-i="6" aria-label="수업의 흐름">
+    <div class="kicker rise">수업의 흐름</div>
+    <div class="tracks rise d1">
+      <div class="track t-on">
+        <span class="tag">On AI</span>
+        <span class="chip">아이데이션 (화이트보드)</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip hl">바이브 코딩</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">협력과 소통</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">개선</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">배포</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">발표</span>
+      </div>
+      <div class="track t-non">
+        <span class="tag">Non AI</span>
+        <span class="chip">아이데이션 (화이트보드)</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip hl">손 코딩</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">협력과 소통</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">개선</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">배포</span><span class="sep" aria-hidden="true">›</span>
+        <span class="chip">발표</span>
+      </div>
+    </div>
+    <p class="sub rise d3">두 수업의 차이는 단 하나, 코드를 만드는 방법입니다.</p>
+  </section>
+
+  <!-- 8. 주요 장면 → 키노트 뒤 실제 시연으로 진행 -->
+  <section class="slide" data-i="7" aria-label="주요 장면">
+    <div class="kicker rise">주요 장면</div>
+    <h2 class="lead rise d1">
+      화면 캡처 대신,<br>
+      잠시 후 <b class="green">실제 서비스 시연</b>으로 보여드립니다.
+    </h2>
+    <p class="sub rise d3">당곡 AI 채팅 · pythink2 · vpylab · 프롬프팅 챌린지 · 이미테이션 게임</p>
+  </section>
+
+  <!-- 9. 학생 반응 -->
+  <section class="slide" data-i="8" aria-label="학생 반응">
+    <div class="kicker rise">학생 반응 · 좋았던 것들</div>
+    <div class="points rise d1">
+      <div class="point">
+        <span class="bar" aria-hidden="true"></span>
+        <p>학생들이 AI로 만든 교육 서비스를 매우 흥미롭게 쓰며 수업에 참여했습니다.
+          <small>이미테이션 게임, 프롬프팅 챌린지 등</small></p>
+      </div>
+      <div class="point">
+        <span class="bar" aria-hidden="true"></span>
+        <p>이해가 어려운 인공신경망의 원리를 2차원과 3차원 그래프로 보여 주자, 학생들의 이해가 눈에 띄게 좋아졌습니다.</p>
+      </div>
+      <div class="point">
+        <span class="bar" aria-hidden="true"></span>
+        <p>손 코딩에서는 친구들과 소통하며 재미있게 협력해 문제를 해결하는 모습이 인상 깊었습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. 교사의 인사이트: 둘 다 필요하다 -->
+  <section class="slide" data-i="9" aria-label="교사의 인사이트">
+    <div class="kicker rise">교사의 인사이트</div>
+    <h2 class="lead rise d1">
+      궁극적으로는 <b>둘 다</b> 필요합니다.<br>
+      <b class="green">초록불</b>과 <b class="red">빨간불</b>은 서로를 보완합니다.
+    </h2>
+    <p class="sub rise d3">사고력을 키우려면 AI의 도움을 걷어내야 하고,<br>
+    문제해결력을 키우려면 AI를 잘 쓰는 법도 배워야 합니다.</p>
+  </section>
+
+  <!-- 11. 지향점: 노란불이 켜진 그 사이 -->
+  <section class="slide" data-i="10" aria-label="지향점">
+    <div class="kicker rise">지향점 · <span class="yellow">그 사이</span></div>
+    <div class="label rise d1">두 불빛 사이에서 우리가 향하는 곳은,</div>
+    <h2 class="hero med rise d2"><span class="yellow">융합적</span><br>문제해결교육</h2>
+    <p class="sub rise d3">AI 시대에 더 깊이 생각하고,<br>
+    더 넓고 창의적으로 생각하고 만들며,<br>
+    함께 협력하고 개선하는 교육을 지향합니다.</p>
+  </section>
+
+  <!-- 12. 결론: 선생님이 먼저 -->
+  <section class="slide" data-i="11" aria-label="선생님이 먼저">
+    <div class="label rise">그 출발은,</div>
+    <h2 class="hero med rise d1">선생님이 <span class="green">먼저</span><br>경험하는 것</h2>
+    <p class="sub rise d3">AI로 문제를 해결해 보는 경험이 중요합니다.<br>
+    가장 좋은 방법은 AI로 <b>교수학습자료를 직접 만들어 보는 것</b>입니다.</p>
+  </section>
+
+  <!-- 13. 마무리 -->
+  <section class="slide" data-i="12" aria-label="마무리">
+    <div class="mark rise" aria-hidden="true">
+      <i class="l-g"></i><i class="l-y"></i><i class="l-r"></i>
+    </div>
+    <div class="kicker rise d1">2026년의 AI융합교육</div>
+    <h2 class="hero med rise d2"><span class="green">On AI</span>와 <span class="red">Non AI</span>,<br>그 <span class="yellow">사이</span>에서</h2>
+    <p class="sub rise d3">감사합니다.</p>
+  </section>
+
+</main>
+
+<nav class="dots" id="dots" aria-label="슬라이드 이동"></nav>
+<div class="counter" id="counter">01 / 13</div>
+<div class="hint" id="hint">→ / Space · 다음</div>
+
+<script>
+(function(){
+  "use strict";
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0;
+  var dotsEl = document.getElementById('dots');
+  var bar = document.getElementById('bar');
+  var counter = document.getElementById('counter');
+  var hint = document.getElementById('hint');
+
+  // 진행 점
+  var dots = [];
+  for(var i=0;i<total;i++){
+    var b = document.createElement('button');
+    b.className = 'dot';
+    b.setAttribute('aria-label', (i+1) + '번째 슬라이드');
+    (function(n){ b.addEventListener('click', function(){ go(n); }); })(i);
+    dotsEl.appendChild(b);
+    dots.push(b);
+  }
+
+  function render(){
+    slides.forEach(function(sl, n){
+      sl.classList.remove('active','past');
+      if(n === idx){ sl.classList.add('active'); }
+      else if(n < idx){ sl.classList.add('past'); }
+    });
+    dots.forEach(function(dt, n){ dt.classList.toggle('on', n === idx); });
+    bar.style.width = ((idx)/(total-1)*100) + '%';
+    counter.textContent = pad(idx+1) + ' / ' + pad(total);
+  }
+  function pad(n){ return (n<10?'0':'') + n; }
+
+  function go(n){
+    n = Math.max(0, Math.min(total-1, n));
+    if(n === idx) return;
+    idx = n;
+    render();
+  }
+  function next(){ if(idx < total-1) go(idx+1); }
+  function prev(){ if(idx > 0) go(idx-1); }
+
+  // 키보드
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Spacebar' || e.key === 'PageDown'){
+      e.preventDefault(); next();
+    } else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){
+      e.preventDefault(); prev();
+    } else if(e.key === 'Home'){ e.preventDefault(); go(0); }
+    else if(e.key === 'End'){ e.preventDefault(); go(total-1); }
+  });
+
+  // 화면 클릭 = 다음 (링크·점 제외)
+  document.getElementById('deck').addEventListener('click', function(e){
+    if(e.target.closest('a') || e.target.closest('.dot')) return;
+    next();
+  });
+
+  // 터치 스와이프
+  var tx = 0, ty = 0;
+  document.addEventListener('touchstart', function(e){
+    tx = e.changedTouches[0].clientX; ty = e.changedTouches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)){
+      if(dx < 0) next(); else prev();
+    }
+  }, {passive:true});
+
+  // 첫 이동 후 힌트 감추기
+  var hid = false;
+  function hideHint(){ if(!hid){ hid = true; hint.style.opacity = '0'; } }
+  document.addEventListener('keydown', hideHint, {once:true});
+  document.getElementById('deck').addEventListener('click', hideHint, {once:true});
+
+  render();
+})();
+</script>
+</body>
+</html>
