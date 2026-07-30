@@ -145,7 +145,20 @@ h1 .a { color: var(--accent); }
 .btn-like:hover { border-color: var(--pink); }
 .btn-like.liked { background: #fdeef2; border-color: var(--pink); color: #c23a63; }
 .btn-like:disabled { opacity: 0.7; cursor: default; }
-.like-icon { font-size: 0.95rem; }
+.like-icon { width: 15px; height: 15px; flex: none; overflow: visible; }
+.like-icon path {
+  fill: none; stroke: var(--pink); stroke-width: 2.4;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: fill 0.15s;
+}
+.like-icon.filled path, .btn-like.liked .like-icon path { fill: var(--pink); }
+.like-icon.inline { width: 13px; height: 13px; vertical-align: -1.5px; }
+.btn-like.liked .like-icon { animation: likePop 0.35s ease; }
+@keyframes likePop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
 
 /* ---------- 피드백 ---------- */
 .feedback-block { border-top: 1px solid var(--border-soft); padding-top: 8px; margin-top: 2px; }
