@@ -25,92 +25,125 @@
   <div class="make-banner">
     <div class="t">🎯 이 페이지에 담긴 것</div>
     <ul>
-      <li><b>데이터가 쌓이는 앱</b> — Supabase 연결 절차 전체를 적었습니다. 혼자 재현할 수 있습니다</li>
+      <li><b>데이터가 쌓이는 앱</b> — 구글 시트 연결 절차 전체를 적었습니다. 혼자 재현할 수 있습니다</li>
       <li><b>오늘 다루지 않은 소재 네 개</b> — 소재마다 샘플 프롬프트 하나씩만 담았습니다</li>
       <li><b>자동화</b> — 정해진 시간에 컴퓨터가 대신 실행하게 만듭니다</li>
       <li><b>더 볼 자료</b></li>
     </ul>
   </div>
 
-  <h2>1. 데이터가 쌓이는 앱 — Supabase</h2>
+  <h2>1. 데이터가 쌓이는 앱 — 구글 시트</h2>
   <p>오늘 만든 앱은 새로고침하면 화면에 넣은 내용이 사라집니다. 저장소를 하나 붙이면 남습니다. 여기서 만드는 것은 <b>약속 잡기 앱</b>입니다. 이름과 가능한 시간을 제출하면 표에 한 줄씩 쌓이고, 다른 사람이 다른 기기에서 열어도 그대로 보입니다.</p>
   <ul>
-    <li><b>Supabase</b>는 앱을 위해 만들어진 무료 데이터베이스입니다. 카드 등록 없이 씁니다</li>
-    <li>앱에서 연결에 필요한 것은 <b>주소 한 줄과 키 한 줄</b>입니다. 오늘 STEP 2에서 다룬 비밀 금고(secrets) 방식 그대로입니다</li>
+    <li>저장소는 <b>구글 시트</b>입니다. 새로 가입할 서비스가 없고, 쌓인 데이터를 익숙한 표 화면에서 바로 봅니다</li>
+    <li>앱에서 연결에 필요한 것은 <b>중계 주소(웹 앱 URL) 한 줄</b>입니다. 오늘 STEP 2에서 다룬 비밀 금고(secrets) 방식 그대로입니다</li>
+    <li>오프닝에서 본 <b>'전국 선생님 지도'</b>가 바로 이 방식으로 돌아갑니다</li>
     <li>준비 15분, 앱 만들기 15분 정도 걸립니다</li>
   </ul>
 
-  <h3>1-1. 프로젝트와 테이블 만들기</h3>
+  <h3>1-1. 시트와 중계 프로그램 만들기</h3>
+  <p>앱이 구글 시트를 직접 여는 것이 아니라, 시트 앞에 <b>중계 프로그램(Apps Script)</b>을 하나 세워 둡니다. 앱은 중계 주소로 저장을 부탁하고, 같은 주소를 열어 명단을 받아 옵니다.</p>
   <ol class="steps">
-    <li><span class="st">가입하고 새 프로젝트 만들기</span><br><a href="https://supabase.com" target="_blank" rel="noopener"><code>supabase.com</code></a>에서 GitHub 계정이나 이메일로 가입합니다. 카드 등록은 없습니다. 처음이면 <b>조직(organization) 만들기</b>가 먼저 나옵니다. 이름을 아무거나 정하고 통과한 뒤 <b>New project</b>를 눌러 프로젝트 이름과 데이터베이스 비밀번호를 정하세요. 리전은 기본값 그대로 둡니다. 준비에 2분 안팎 걸리니 그동안 새로고침하거나 다시 누르지 마세요. <b>대시보드가 열리면 다음으로</b> 넘어갑니다.</li>
-    <li><span class="st">SQL 한 번 실행 — 테이블과 정책을 함께</span><br>왼쪽 <b>SQL Editor → New query</b>를 열고 아래 상자를 <b>그대로 붙여넣은 뒤 Run</b>을 누릅니다. <code>Success. No rows returned</code>가 뜨면 됩니다. 클릭으로 만들 수도 있지만, 그러면 열 이름을 손으로 치게 되고 <code>name</code>을 <code>names</code>로 적는 순간 앱이 안 돌아갑니다.</li>
-    <li><span class="st">주소와 키 복사</span><br><b>Settings → API Keys</b>에서 <b>publishable 키</b>를, <b>Settings → Data API</b>에서 <b>Project URL</b>을 복사합니다. 문자열 두 개가 전부입니다. URL은 반드시 <code>.supabase.co</code>에서 끝나야 합니다. 뒤에 <code>/rest/v1</code> 같은 게 붙어 있으면 그 부분은 지우세요. 안 지우면 나중에 <code>PGRST125 Invalid path</code> 오류가 납니다. (화면 구성은 조금씩 바뀔 수 있습니다. 못 찾으면 AI에게 물어보세요)</li>
+    <li><span class="st">새 스프레드시트 만들기</span><br>구글 계정으로 로그인한 브라우저에서 <a href="https://sheets.new" target="_blank" rel="noopener"><code>sheets.new</code></a>를 열면 빈 스프레드시트가 하나 생깁니다. 이름은 <b>약속잡기</b> 정도로 정합니다. 시트(탭)를 미리 만들 필요는 없습니다. 첫 제출이 들어올 때 <code>votes</code> 시트가 자동으로 생깁니다.</li>
+    <li><span class="st">Apps Script 열고 코드 붙여넣기</span><br>스프레드시트 메뉴에서 <b>확장 프로그램 → Apps Script</b>를 누르면 코드 편집기가 새 탭으로 열립니다. 기본으로 있는 내용을 지우고 아래 상자를 <b>그대로 붙여넣은 뒤 저장(💾)</b>합니다.</li>
+    <li><span class="st">웹 앱으로 배포</span><br>오른쪽 위 <b>배포 → 새 배포</b>를 누르고, ⚙️(톱니)에서 유형을 <b>웹 앱</b>으로 고릅니다. <b>실행 계정: 나</b>, <b>액세스 권한: 모든 사용자</b>로 두고 <b>배포</b>를 누릅니다. 처음이면 권한 승인 창이 뜹니다. 내 계정을 고르고, '확인되지 않은 앱' 경고가 나오면 <b>고급 → (프로젝트 이름)(으)로 이동 → 허용</b>을 누릅니다. 내가 만든 코드에 내 시트를 열어 주는 절차라 놀랄 것 없습니다.</li>
+    <li><span class="st">웹 앱 URL 복사</span><br>배포가 끝나면 <code>https://script.google.com/macros/s/…/exec</code> 모양의 주소가 나옵니다. <b>끝이 <code>/exec</code>인 이 주소</b>가 중계 주소입니다. 새 탭에서 열어 <code>{"ok":true</code>로 시작하는 글자가 보이면 준비가 끝난 것입니다.</li>
   </ol>
 
-  <div class="codewrap code"><span class="label">SQL Editor에 그대로 붙여넣고 Run</span><pre>create table votes (
-  id bigint generated always as identity primary key,
-  name text,
-  times text,
-  created_at timestamptz default now()
-);
+  <div class="codewrap code"><span class="label">Apps Script에 그대로 붙여넣고 저장 (Code.gs)</span><pre>const SHEET_NAME = 'votes';
 
-alter table votes enable row level security;
+function sheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAME);
+    sh.appendRow(['제출시각', '이름', '가능한시간']);
+  }
+  return sh;
+}
 
-create policy "누구나 읽기" on votes
-  for select to anon, authenticated using (true);
+// 한 건 저장 (앱이 보내는 제출)
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const d = JSON.parse(e.postData.contents);
+    sheet_().appendRow([new Date(), d.name || '', d.times || '']);
+    return out_({ ok: true });
+  } catch (err) {
+    return out_({ ok: false, error: String(err) });
+  } finally {
+    lock.releaseLock();
+  }
+}
 
-create policy "누구나 쓰기" on votes
-  for insert to anon, authenticated with check (true);</pre></div>
+// 명단 전체 반환 (앱이 여는 요청) — 최근 제출이 앞으로
+function doGet(e) {
+  const sh = sheet_();
+  const rows = [];
+  if (sh.getLastRow() > 1) {
+    sh.getRange(2, 1, sh.getLastRow() - 1, 3).getValues().forEach(function (r) {
+      rows.push({ created_at: r[0], name: String(r[1]), times: String(r[2]) });
+    });
+  }
+  rows.reverse();
+  return out_({ ok: true, rows: rows });
+}
+
+function out_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre></div>
   <ul>
-    <li>네 문장이 한 번에 돌아갑니다. <code>votes</code> 테이블(열 <code>name</code>·<code>times</code>·<code>created_at</code>)이 생기고, 잠금이 켜진 뒤, 읽기와 쓰기를 열어 주는 정책이 하나씩 붙습니다</li>
-    <li>테이블 이름은 <code>votes</code>처럼 <b>글자로</b> 시작해야 합니다. <code>260729</code> 같은 숫자만으로는 안 됩니다</li>
-    <li><code>created_at</code>은 데이터베이스가 알아서 채웁니다. 앱에서 보낼 필요가 없습니다</li>
+    <li>저장(<code>doPost</code>)과 읽기(<code>doGet</code>) 두 가지가 전부입니다. 앱은 이 둘만 부릅니다</li>
+    <li>여러 명이 동시에 제출해도 줄이 엉키지 않도록 저장에는 잠금(Lock)을 걸어 두었습니다</li>
+    <li>제출 시각은 중계 프로그램이 알아서 채웁니다. 앱에서 보낼 필요가 없습니다</li>
   </ul>
 
   <div class="callout warn">
-    <div class="h">⚠️ 행 수준 보안(RLS)이 조용히 막습니다</div>
+    <div class="h">⚠️ 배포 설정이 조용히 막습니다</div>
     <ul>
-      <li>Supabase는 새 테이블에 <b>행 수준 보안(RLS)</b>을 걸 수 있고, 걸리면 <b>기본값이 전부 차단</b>입니다. 정책을 하나도 안 만들면 아무것도 통과하지 못합니다</li>
-      <li>막히는 모습이 둘로 갈립니다. <b>저장은</b> <code>row-level security</code> 문구가 든 빨간 오류로 바로 드러나는데, <b>읽기는 오류 없이 빈 목록</b>이 옵니다. 코드는 멀쩡해 보이는데 명단만 계속 비어 있습니다</li>
-      <li>그래서 위 SQL에 테이블과 정책을 함께 넣었습니다. <b>읽기 정책과 쓰기 정책이 하나씩</b> 있어야 앱이 돕니다</li>
-      <li>관리자 화면(<b>Table Editor</b>)에서 직접 줄을 넣어 보는 것으로는 확인이 안 됩니다. 관리자 화면은 RLS를 거치지 않고 통과합니다. 확인은 반드시 <b>배포한 앱에서</b> 하세요</li>
-      <li>정책이 제대로 붙었는지 보려면 <b>Table Editor</b>에서 <code>votes</code>를 열어 보세요. 이름 옆에 <b>Unrestricted</b> 배지가 없고 정책 수가 <b>2</b>로 표시되면 위 SQL이 다 돌아간 상태입니다</li>
+      <li>액세스 권한이 <b>'모든 사용자'가 아니면</b> 앱의 요청이 구글 <b>로그인 화면으로 돌아옵니다</b>. 앱 입장에서는 명단 대신 로그인 페이지가 온 것이라 <code>Expecting value</code> 같은 오류가 납니다</li>
+      <li><b>코드를 고쳤다면 저장만으로는 반영되지 않습니다.</b> <b>배포 → 배포 관리 → ✏️ → 버전: 새 버전 → 배포</b>를 눌러야 바뀐 코드가 나갑니다. 주소는 그대로 유지됩니다</li>
+      <li>가장 흔한 사고는 <b>편집기 주소를 금고에 넣는 것</b>입니다. <code>…/edit</code>로 끝나면 편집기 주소, <code>…/exec</code>로 끝나야 중계 주소입니다</li>
+      <li>확인 방법은 하나면 됩니다. 중계 주소를 브라우저에서 직접 열어 <code>{"ok":true</code>가 보이면 통과입니다</li>
     </ul>
   </div>
 
   <div class="callout warn">
-    <div class="h">🔑 키 두 종류를 구분합니다</div>
+    <div class="h">🔑 키는 없습니다. 그래도 주소는 금고에</div>
     <ul>
-      <li><b>publishable 키</b>(<code>sb_publishable_</code>로 시작) = 앱에 넣어도 되는 공개용. 여기서 쓰는 키입니다. 이 키로 들어온 요청은 위에서 만든 정책이 허용한 범위 안에서만 움직입니다</li>
-      <li><b>secret 키</b>(<code>sb_secret_</code>로 시작) = 모든 잠금을 여는 관리자 키. 앱에도, GitHub에도 올리지 않습니다</li>
-      <li>2025년 11월 이전에 만든 프로젝트라면 옛 이름인 <b>anon</b>·<b>service_role</b> 키가 보일 수 있습니다. 각각 publishable·secret에 해당합니다</li>
+      <li>이 방식에는 따로 키가 없습니다. <b>중계 주소 하나가 전부</b>입니다</li>
+      <li>주소를 아는 사람은 누구나 읽고 쓸 수 있습니다. <b>반 전체가 함께 쓰는 공용 노트</b>라고 생각하고, 민감한 정보는 담지 않습니다</li>
+      <li>그래도 주소를 코드에 적지 않고 금고에 두는 습관은 그대로 유지합니다. 저장소를 공개해도 주소가 드러나지 않고, 주소를 바꿀 때 코드를 건드리지 않아도 됩니다</li>
     </ul>
   </div>
 
   <h3>1-2. 저장소와 금고</h3>
   <p>저장소는 새로 하나 만들면 됩니다. 이름은 <code>my-vote-app</code> 정도로 하고, 파일은 <code>main.py</code>와 <code>requirements.txt</code> 두 개입니다. STEP 4에서 만든 사이트의 <code>pages/</code> 폴더에 파일 하나로 넣어도 똑같이 돌아갑니다.</p>
-  <div class="codewrap code"><span class="label">requirements.txt</span><pre>supabase</pre></div>
-  <div class="codewrap code"><span class="label">Settings → Secrets — 딱 두 줄</span><pre>SUPABASE_URL = "https://xxxx.supabase.co"
-SUPABASE_KEY = "publishable_키_붙여넣기"</pre></div>
+  <div class="codewrap code"><span class="label">requirements.txt</span><pre>requests</pre></div>
+  <div class="codewrap code"><span class="label">Settings → Secrets — 딱 한 줄</span><pre>SHEET_API_URL = "https://script.google.com/macros/s/xxxx/exec"</pre></div>
   <ol class="steps">
-    <li><span class="st">클라우드 금고에 넣기</span><br>배포한 앱 화면 <b>오른쪽 아래 Manage app</b> → <b>⋮</b>(점 세 개) → <b>Settings</b> → <b>Secrets</b> 탭에 위 두 줄을 붙여넣고 <b>Save</b>. 저장하면 앱이 알아서 다시 시작합니다</li>
-    <li><span class="st">내 컴퓨터에서도 돌린다면</span><br><code>.streamlit/secrets.toml</code> 파일에 같은 두 줄을 넣고, <code>.gitignore</code>에 <code>.streamlit/secrets.toml</code> 한 줄을 적어 둡니다. 이 파일은 GitHub에 올리지 않습니다</li>
+    <li><span class="st">클라우드 금고에 넣기</span><br>배포한 앱 화면 <b>오른쪽 아래 Manage app</b> → <b>⋮</b>(점 세 개) → <b>Settings</b> → <b>Secrets</b> 탭에 위 한 줄을 붙여넣고 <b>Save</b>. 저장하면 앱이 알아서 다시 시작합니다</li>
+    <li><span class="st">내 컴퓨터에서도 돌린다면</span><br><code>.streamlit/secrets.toml</code> 파일에 같은 한 줄을 넣고, <code>.gitignore</code>에 <code>.streamlit/secrets.toml</code> 한 줄을 적어 둡니다. 이 파일은 GitHub에 올리지 않습니다</li>
   </ol>
 
   <h3>1-3. AI에게 주문하기</h3>
   <div class="codewrap prompt"><span class="label">① 샘플 프롬프트</span><pre>스트림릿으로 '약속 잡기' 앱 하나(main.py)를 만들어줘. 스트림릿 클라우드에 올릴 거야.
 
-- 데이터 저장소는 Supabase야. 접속에 필요한 주소와 키는
-  비밀 금고(secrets)의 SUPABASE_URL, SUPABASE_KEY에서 꺼내 써. 코드에는 적지 마.
-- 테이블 이름은 votes, 열은 name(글자), times(글자), created_at(제출 시각)이야.
-  created_at은 데이터베이스가 알아서 채우니까 앱에서 보내지 마.
+- 데이터 저장소는 구글 시트고, 시트 앞에 세워 둔 중계 주소(Apps Script 웹 앱)로만
+  읽고 써. 중계 주소는 비밀 금고(secrets)의 SHEET_API_URL에서 꺼내 써.
+  코드에는 적지 마.
+- 저장할 때는 중계 주소로 이름(name)과 가능한 시간(times)을 JSON으로 보내면 돼.
+  제출 시각은 중계 프로그램이 알아서 채우니까 앱에서 보내지 마.
+- 읽을 때는 중계 주소를 그대로 열면 ok와 rows가 든 JSON이 오고,
+  rows 안에 한 줄마다 name, times, created_at이 들어 있어. 최근 제출이 앞이야.
 - 화면 위에 이름 입력창, 가능한 시간을 여러 개 고르는 목록, 제출 버튼을 둬.
   시간 목록은 '월 오전'부터 '금 오후'까지 요일과 오전·오후를 짝지은 열 개로.
-- 제출을 누르면 이름과 고른 시간을 votes 테이블에 한 줄 추가해줘.
+- 제출을 누르면 이름과 고른 시간을 한 줄로 보내줘.
   여러 개 고른 시간은 쉼표로 이어 붙여서 times 한 칸에 넣어.
 - 이름이 비었거나 시간을 하나도 안 골랐으면 저장하지 말고 안내 문구만 띄워.
-- 그 아래에는 votes 테이블 전체를 최근 제출 순으로 읽어 와 표로 보여줘.
-  표에는 이름과 시간 두 열만 보이면 돼.
+- 그 아래에는 명단 전체를 표로 보여줘. 표에는 이름과 시간 두 열만 보이면 돼.
   아직 한 줄도 없으면 표 대신 비어 있다는 안내를 띄워.
 - 필요한 라이브러리 목록(requirements.txt)도 같이 줘.
   버전 숫자 없이 이름만, 스트림릿·판다스·넘파이는 기본 설치라 빼고.
@@ -119,13 +152,11 @@ SUPABASE_KEY = "publishable_키_붙여넣기"</pre></div>
     <li>AI가 아래와 같은 <b>모습</b>의 코드를 줍니다. 글자까지 똑같지 않아도 됩니다</li>
   </ul>
   <div class="codewrap code"><span class="label">② AI가 준 코드 예시 (main.py)</span><pre>import streamlit as st
-from supabase import create_client
+import requests
 import pandas as pd
 
-# 비밀 금고(secrets)에 넣어 둔 두 줄을 꺼내 Supabase에 연결합니다
-url = st.secrets["SUPABASE_URL"]
-key = st.secrets["SUPABASE_KEY"]
-supabase = create_client(url, key)
+# 비밀 금고(secrets)에 넣어 둔 중계 주소(웹 앱 URL)를 꺼냅니다
+API_URL = st.secrets["SHEET_API_URL"]
 
 st.set_page_config(page_title="약속 잡기", page_icon="📅")
 st.title("📅 약속 잡기")
@@ -146,24 +177,20 @@ if st.button("제출"):
         st.warning("가능한 시간을 하나 이상 골라 주세요.")
     else:
         # 여러 개 고른 시간은 쉼표로 이어 한 칸에 넣습니다
-        supabase.table("votes").insert(
-            {"name": 이름, "times": ", ".join(선택시간)}
-        ).execute()
+        requests.post(
+            API_URL,
+            json={"name": 이름, "times": ", ".join(선택시간)},
+        )
         st.success(f"{이름} 선생님, 제출됐습니다.")
 
 st.divider()
 st.subheader("📋 지금까지 제출된 명단")
 
-# votes 테이블 전체를 최근 제출 순으로 읽어 옵니다
-응답 = (
-    supabase.table("votes")
-    .select("name, times, created_at")
-    .order("created_at", desc=True)
-    .execute()
-)
+# 중계 주소를 열어 명단 전체를 받아 옵니다 (최근 제출이 앞)
+데이터 = requests.get(API_URL).json()
 
-if 응답.data:
-    df = pd.DataFrame(응답.data)
+if 데이터["rows"]:
+    df = pd.DataFrame(데이터["rows"])
     st.dataframe(df[["name", "times"]])
     st.caption(f"모두 {len(df)}명이 제출했습니다.")
 else:
@@ -173,25 +200,24 @@ else:
     <div class="h">✔️ 이렇게 되면 성공</div>
     <ul>
       <li>앱에서 이름을 적고 시간을 골라 제출 → 아래 명단에 <b>방금 넣은 줄이 바로</b> 보입니다</li>
-      <li>Supabase의 <b>Table Editor → votes</b>를 열어 새로고침 → <b>같은 줄</b>이 있으면 확실합니다</li>
+      <li>스프레드시트를 열어 보면 <b><code>votes</code> 시트에 같은 줄</b>이 생겨 있습니다. 저장소가 눈에 보이는 표라는 것이 이 방식의 큰 장점입니다</li>
       <li>앱 주소를 휴대폰이나 시크릿 창에서 열어도 <b>같은 명단</b>이 보입니다. 여기까지 되면 앱에 기억이 생긴 것입니다</li>
     </ul>
   </div>
   <div class="callout warn">
     <div class="h">🧯 안 될 때 보는 곳</div>
     <ul>
-      <li>빨간 오류에 <code>row-level security</code> → <b>쓰기 정책이 없는 상태</b>. 1-1의 SQL에서 정책 두 개를 다시 실행하세요</li>
-      <li>오류는 없는데 <b>명단만 계속 비어 있음</b> → <b>읽기 정책이 없는 상태</b>. 원인은 바로 위와 같습니다</li>
-      <li><code>PGRST205</code> · <code>Could not find the table</code> → 테이블 이름이 다르거나 다른 프로젝트를 가리키는 중</li>
-      <li><code>PGRST125</code> · <code>Invalid path</code> → 금고의 <code>SUPABASE_URL</code> 끝에 <code>/rest/v1</code>이 붙어 있습니다. <code>.supabase.co</code>까지만 남기세요</li>
-      <li><code>KeyError</code> → 금고에 넣은 이름과 코드가 꺼내 쓰는 이름이 다릅니다. 두 곳 다 <code>SUPABASE_URL</code>·<code>SUPABASE_KEY</code>인지 확인하세요</li>
+      <li><code>Expecting value</code> 오류 → 중계 주소가 명단 대신 <b>로그인 화면을 돌려주는 중</b>입니다. 배포의 액세스 권한이 '모든 사용자'인지, 금고의 주소가 <code>…/exec</code>로 끝나는지 확인하세요</li>
+      <li>제출해도 <b>시트에 안 쌓임</b> → Apps Script 코드를 고친 뒤 <b>새 버전 배포</b>를 안 한 상태가 대부분입니다. 배포 관리에서 새 버전으로 다시 배포하세요</li>
+      <li>오류는 없는데 <b>명단만 계속 비어 있음</b> → 시트 탭 이름을 손으로 바꾼 경우입니다. 이름이 바뀌면 중계 프로그램이 빈 <code>votes</code> 시트를 새로 만들어 그쪽만 봅니다</li>
+      <li><code>KeyError</code> → 금고에 넣은 이름과 코드가 꺼내 쓰는 이름이 다릅니다. 두 곳 다 <code>SHEET_API_URL</code>인지 확인하세요</li>
     </ul>
   </div>
 
   <div class="codewrap improve"><span class="label">③ 프롬프트 개선</span><pre>좋아! 이어서 고쳐줘.
 - 명단 아래에 시간대별로 몇 명이 가능한지 세어 막대그래프로 보여줘.
 - 가장 많은 사람이 가능한 시간을 지표 카드로 크게 띄워줘.
-- 표에 제출 시각도 같이 보여줘. 데이터베이스에는 세계표준시로 저장되니까
+- 표에 제출 시각도 같이 보여줘. 제출 시각은 세계표준시로 오니까
   한국 시간으로 바꿔서 '월-일 시:분' 모양으로.
 - 제출이 끝나면 입력창을 비우고 명단을 바로 다시 읽어 오게 해줘.
 - 명단이 스무 줄을 넘으면 최근 스무 줄만 표에 보이고,
@@ -406,12 +432,11 @@ jobs:
       <table class="glossary-table">
         <thead><tr><th>용어</th><th>뜻</th></tr></thead>
         <tbody>
-          <tr><td class="term">Supabase</td><td>앱을 위해 만들어진 무료 데이터베이스 서비스. 주소와 키 두 줄로 연결</td></tr>
-          <tr><td class="term">행 수준 보안(RLS)</td><td>테이블을 줄 단위로 잠그는 장치. 켜지면 기본값이 전부 차단</td></tr>
-          <tr><td class="term">정책(policy)</td><td>RLS가 열어 줄 조건을 적은 규칙. 읽기·쓰기를 따로 만듦</td></tr>
-          <tr><td class="term">publishable 키</td><td>앱에 넣어도 되는 공개용 키. 예전 이름은 anon</td></tr>
-          <tr><td class="term">secret 키</td><td>모든 잠금을 여는 관리자 키. 앱·저장소에 올리지 않음. 예전 이름은 service_role</td></tr>
-          <tr><td class="term">SQL Editor</td><td>Supabase 대시보드에서 SQL을 직접 실행하는 화면</td></tr>
+          <tr><td class="term">Apps Script</td><td>구글 시트에 붙여 쓰는 작은 프로그램 도구. 시트의 '확장 프로그램' 메뉴에서 엶</td></tr>
+          <tr><td class="term">웹 앱 배포</td><td>Apps Script를 주소 하나로 바깥에서 부를 수 있게 내놓는 것. 주소는 /exec로 끝남</td></tr>
+          <tr><td class="term">중계 주소</td><td>앱과 시트 사이에서 저장·읽기를 대신 받아 주는 웹 앱 주소. 비밀 금고에 넣어 씀</td></tr>
+          <tr><td class="term">새 버전 배포</td><td>Apps Script 코드를 고친 뒤 배포 관리에서 다시 내놓는 절차. 주소는 유지됨</td></tr>
+          <tr><td class="term">잠금(Lock)</td><td>여러 명이 동시에 저장해도 줄이 엉키지 않게 순서를 세우는 장치</td></tr>
           <tr><td class="term">cron</td><td>언제 실행할지를 다섯 칸으로 적는 시간표 문법</td></tr>
           <tr><td class="term">UTC(세계표준시)</td><td>한국 시간에서 9시간을 뺀 시각. GitHub Actions의 cron이 쓰는 기준</td></tr>
           <tr><td class="term">GitHub Actions</td><td>저장소 안에서 정해진 시간·조건에 명령을 대신 실행하는 기능</td></tr>
