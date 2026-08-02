@@ -27,7 +27,10 @@
   .legend .sw{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);}
   .legend .cnt{color:var(--text);font-variant-numeric:tabular-nums;min-width:14px;}
   #main{flex:1;position:relative;min-height:0;overflow:hidden;}
-  #map{position:absolute;inset:0;width:100%;height:100%;}
+  #map{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;}
+  #zoomHint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;pointer-events:none;
+    font-size:.72rem;font-weight:700;color:var(--muted);background:rgba(255,255,255,.72);
+    border:1px solid var(--border);border-radius:99px;padding:4px 12px;}
   #pins{position:absolute;inset:0;pointer-events:none;}
   .pin{position:absolute;left:0;top:0;pointer-events:auto;}
   .pin .vis{transform:translate(-50%,-50%);}
@@ -151,6 +154,7 @@
     <div id="pins"></div>
     <div id="empty">📱 오른쪽 QR을 스캔해<br>우리 학교를 지도에 올려주세요!</div>
     <div id="ticker"></div>
+    <div id="zoomHint">🖱️ 휠: 확대/축소 · 드래그: 이동 · 더블클릭: 전체 보기</div>
     <div id="stats">
       <div class="sT">🎨 바이브 코딩 경험</div><div id="vibeBars"><div class="none2">집계 중…</div></div>
       <div class="sT two">🎖 교육경력</div><div id="careerBars"><div class="none2">집계 중…</div></div>
@@ -273,7 +277,8 @@ function buildProj(g){
   const gw=(g.loMax-g.loMin)*kx, gh=(g.laMax-g.laMin);
   const scale=Math.min(mw/gw, mh/gh)*0.92;
   const cx=(g.loMin+g.loMax)/2*kx, cy=(g.laMin+g.laMax)/2;
-  return { g, proj:(la,lo)=>[ mw/2+(lo*kx-cx)*scale, mh/2-(la-cy)*scale ] };
+  return { g, proj:(la,lo)=>[ mw/2+(lo*kx-cx)*scale, mh/2-(la-cy)*scale ],
+    unproj:(x,y)=>[ cy-(y-mh/2)/scale, ((x-mw/2)/scale+cx)/kx ] };
 }
 function drawMap(){
   const dpr=Math.min(window.devicePixelRatio||1, 2.5);
@@ -353,6 +358,49 @@ function fitChanged(g){
   return false;
 }
 window.addEventListener('resize', ()=>{ if(VIEW){ VIEW=buildProj(VIEW.g); render(); } });
+
+// ---- 줌·이동: 휠=확대/축소, 드래그=이동, 두 손가락=핀치, 더블클릭=전체 보기 ----
+let userView=false;   // 사용자가 직접 움직인 뒤에는 자동 맞춤을 멈춘다
+function relXY(e){ const r=mainEl.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
+function zoomAt(px,py,factor){
+  if(!VIEW||!NAT) return;
+  const g=VIEW.g, sLa0=g.laMax-g.laMin, sLo0=g.loMax-g.loMin;
+  if(sLa0*factor<0.03 && factor<1) return;                       // 과도한 확대 방지
+  if(sLa0*factor>(NAT.laMax-NAT.laMin)*2 && factor>1) return;    // 과도한 축소 방지
+  const [la,lo]=VIEW.unproj(px,py);
+  if(!Number.isFinite(la)||!Number.isFinite(lo)) return;   // 화면 크기 0 등 비정상 상태 방어
+  const rLa=(la-g.laMin)/sLa0, rLo=(lo-g.loMin)/sLo0;
+  VIEW=buildProj({laMin:la-sLa0*factor*rLa, laMax:la+sLa0*factor*(1-rLa),
+                  loMin:lo-sLo0*factor*rLo, loMax:lo+sLo0*factor*(1-rLo)});
+  userView=true; render();
+}
+mainEl.addEventListener('wheel', e=>{
+  if(!VIEW) return;
+  if(e.target!==cv && !pinsEl.contains(e.target)) return;   // 통계·QR 위에서는 줌 안 함
+  e.preventDefault();
+  const p=relXY(e); zoomAt(p[0], p[1], e.deltaY>0 ? 1.18 : 1/1.18);
+},{passive:false});
+const ptrs=new Map();
+cv.addEventListener('pointerdown', e=>{ ptrs.set(e.pointerId, relXY(e)); try{cv.setPointerCapture(e.pointerId);}catch(_){} cv.style.cursor='grabbing'; });
+cv.addEventListener('pointermove', e=>{
+  if(!ptrs.has(e.pointerId)||!VIEW) return;
+  const prev=ptrs.get(e.pointerId), p=relXY(e);
+  if(ptrs.size===2){   // 핀치: 두 점 사이 거리 변화만큼 가운데를 중심으로 줌
+    const other=[...ptrs.entries()].find(([id])=>id!==e.pointerId)[1];
+    const d0=Math.hypot(prev[0]-other[0], prev[1]-other[1]);
+    const d1=Math.hypot(p[0]-other[0], p[1]-other[1]);
+    if(d0>8 && d1>8) zoomAt((p[0]+other[0])/2, (p[1]+other[1])/2, d0/d1);
+  }else{               // 드래그: 픽셀 이동량을 위경도 이동량으로 환산해 지도를 민다
+    const [la1,lo1]=VIEW.unproj(prev[0],prev[1]), [la2,lo2]=VIEW.unproj(p[0],p[1]);
+    if(![la1,lo1,la2,lo2].every(Number.isFinite)) return;   // 화면 크기 0 등 비정상 상태 방어
+    const g=VIEW.g, dLa=la1-la2, dLo=lo1-lo2;
+    VIEW=buildProj({laMin:g.laMin+dLa,laMax:g.laMax+dLa,loMin:g.loMin+dLo,loMax:g.loMax+dLo});
+    userView=true; render();
+  }
+  ptrs.set(e.pointerId, p);
+});
+['pointerup','pointercancel'].forEach(t=>cv.addEventListener(t, e=>{ ptrs.delete(e.pointerId); if(!ptrs.size) cv.style.cursor='grab'; }));
+cv.addEventListener('dblclick', ()=>{ userView=false; VIEW=buildProj(PINS.length?pinsGeo():NAT); render(); });
 
 function bump(el,val){ if(el.textContent===String(val))return; el.textContent=val; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200); }
 // 도착 알림: 한 번에 여러 명 와도 순차로 다 보여줌(많으면 묶어서)
@@ -504,7 +552,7 @@ async function poll(){
       const elE=document.getElementById('cE'); if(elE) elE.textContent=cE;   // 초 범례가 주석 처리돼 있어도 안전하게
       document.getElementById('cM').textContent=cM;
       document.getElementById('cH').textContent=cH;
-      const g=pinsGeo(); if(fitChanged(g)) VIEW=buildProj(g);
+      if(!userView){ const g=pinsGeo(); if(fitChanged(g)) VIEW=buildProj(g); }   // 직접 움직인 뒤엔 자동 맞춤 안 함
       render();                                  // 지도(구 색칠) + 핀 재배치
       if(!useTally) renderStats();               // 바이브 경험·경력 통계 갱신
       enqueueTicker(freshItems);                 // 동시 도착도 순차로 다 알림
