@@ -57,8 +57,9 @@ function doGet(e) {
       addSplit_(tally.unconfident, r[8]);
       addScores_(scores, r[9]);
       addDist_(dist, r[9]);
-      if (name in index) { schools[index[name]].count++; return; }
-      index[name] = schools.length;
+      const key = name + '@' + String(r[2]);   // 이름이 같은 다른 지역 학교(예: 상도중 서울·부천)와 섞이지 않게
+      if (key in index) { schools[index[key]].count++; return; }
+      index[key] = schools.length;
       schools.push({ school: name, region: String(r[2]), lat: r[3], lon: r[4], vibe: vibe, career: career, count: 1 });
     });
   }

@@ -224,7 +224,7 @@ document.getElementById('qrbig').onclick = ()=>document.getElementById('qrbig').
 
 let DIST = [];   // 시군구 [{n,p:[[ring...]],bbox,count}]
 let NAT = null, VIEW = null;
-const PINS = [], pinByName = {};   // 학교명 → 핀(인원수 갱신용)
+const PINS = [], pinByName = {};   // '학교명@지역' → 핀(인원수 갱신용)
 let count=0, cE=0,cM=0,cH=0;
 let VIBE={}, CAREER={}, SKILL_AVG={}, SKILL_DIST={}, tallySig='';
 // 분야 이름이 길어서 보드에서는 짧은 표기로 보여 준다
@@ -517,7 +517,8 @@ async function poll(){
     const freshItems=[];
     (d.schools||[]).forEach(r=>{
       const cnt = +r.count || 1;
-      const existing = pinByName[r.school];
+      const key = r.school + '@' + r.region;   // 이름이 같은 다른 지역 학교와 섞이지 않게
+      const existing = pinByName[key];
       if(existing){   // 이미 있는 학교 — 인원수만 갱신
         if(cnt !== existing.count){
           existing.count = cnt;
@@ -528,7 +529,7 @@ async function poll(){
       }
       count++;
       const kind = KIND[r.school+'@'+r.region] || kindOf(r.school);
-      pinByName[r.school] = addPin(r.school, r.region, +r.lat, +r.lon, kind, cnt);
+      pinByName[key] = addPin(r.school, r.region, +r.lat, +r.lon, kind, cnt);
       if(kind==='초')cE++; else if(kind==='중')cM++; else if(kind==='고')cH++;
       const dist = districtOf(+r.lat, +r.lon); if(dist) dist.count++;   // 어느 구인지 색칠용 카운트
       if(!useTally){   // 백엔드가 집계를 안 주면 학교 단위로 세어 둔다
