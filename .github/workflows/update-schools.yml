@@ -1,0 +1,42 @@
+# 학교 목록(schools.json)을 공공데이터포털 최신본으로 자동 최신화한다.
+# - 매달 5일 오전 9시(한국 시각)에 저절로 돈다. 포털은 매월 초에 전국 자료를 병합한다.
+# - 바로 바꾸고 싶으면 Actions 탭 → '학교 목록 최신화' → Run workflow.
+# - 매번 schools.meta.json(확인 시각)을 커밋하므로, 저장소가 오래 조용해도 예약 실행이 꺼지지 않는다.
+name: 학교 목록 최신화
+
+on:
+  schedule:
+    - cron: '0 0 5 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 공공데이터포털에서 학교 목록 받기
+        id: fetch
+        run: python3 tools/update_schools.py
+      - name: 커밋하고 페이지 다시 빌드
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add schools.json schools.meta.json
+          if git diff --cached --quiet; then echo "바뀐 것 없음"; exit 0; fi
+          if git diff --cached --quiet -- schools.json; then
+            MSG="🤖 학교 목록 확인 (기준일 ${{ steps.fetch.outputs.ref_date }}, 변화 없음)"
+          else
+            MSG="🤖 학교 목록 자동 최신화 (기준일 ${{ steps.fetch.outputs.ref_date }}, +${{ steps.fetch.outputs.added }} -${{ steps.fetch.outputs.removed }})"
+          fi
+          git commit -m "$MSG"
+          git push
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null || echo "페이지 빌드 요청은 건너뜀(푸시로 자동 빌드됨)"
